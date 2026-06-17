@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Prestige Inquiry — Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#080b16;--panel:#0f1424;--card:#131a2c;--line:#1e273f;
+    --txt:#e8edf7;--muted:#8a93ac;--muted2:#5e6783;
+    --blue:#3b82f6;--indigo:#6366f1;--purple:#8b5cf6;--pink:#ec4899;
+    --green:#22c55e;--teal:#06b6d4;--orange:#f59e0b;--red:#ef4444;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    background:radial-gradient(1100px 640px at 82% -12%, #131b30 0%, transparent 58%), radial-gradient(820px 560px at -8% 112%, #15122a 0%, transparent 55%), var(--bg);
+    color:var(--txt);-webkit-font-smoothing:antialiased;font-size:13px;
+  }
+  svg{stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+  .app{display:flex;min-height:100vh}
+
+  .sidebar{width:214px;flex:0 0 214px;background:#0a0e1c;border-right:1px solid var(--line);padding:18px 14px;display:flex;flex-direction:column;gap:6px;position:sticky;top:0;height:100vh}
+  .brand{display:flex;align-items:center;gap:11px;padding:6px 6px 16px}
+  .brand .logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 4px 12px rgba(99,102,241,.22)}
+  .brand .name{font-weight:700;font-size:13px;letter-spacing:.4px;line-height:1.05}
+  .brand .name span{display:block;color:var(--muted);font-weight:600;font-size:10.5px;letter-spacing:2.5px}
+  .nav{display:flex;flex-direction:column;gap:2px;margin-top:2px}
+  .nav a{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:9px;color:var(--muted);text-decoration:none;font-weight:600;font-size:12.5px;cursor:pointer;transition:.14s}
+  .nav a .ic{width:18px;height:18px;flex:0 0 18px;color:inherit;opacity:.85}
+  .nav a:hover{background:#131b30;color:#cfd6ea}
+  .nav a.active{background:rgba(99,102,241,.14);color:#fff;box-shadow:inset 0 0 0 1px rgba(99,102,241,.28)}
+  .nav a.active .ic{opacity:1;color:#a5b4fc}
+  .nav a .badge{margin-left:auto;background:var(--pink);color:#fff;border-radius:20px;font-size:10px;font-weight:700;padding:1px 7px;min-width:18px;text-align:center}
+  .nav a .badge.blue{background:var(--blue)}
+  .nav a .ai{margin-left:auto;background:rgba(139,92,246,.2);color:#c4b5fd;border-radius:6px;font-size:9px;font-weight:800;padding:2px 6px;letter-spacing:.5px;box-shadow:inset 0 0 0 1px rgba(139,92,246,.35)}
+  .side-foot{margin-top:auto;display:flex;flex-direction:column;gap:10px}
+  .userbox{background:#0e1426;border:1px solid var(--line);border-radius:12px;padding:10px;display:flex;align-items:center;gap:9px}
+  .avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#ec4899);display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:11px}
+  .userbox .u-name{font-weight:700;font-size:12px}
+  .userbox .u-role{color:var(--muted);font-size:10.5px}
+  .userbox .u-role::before{content:"● ";color:var(--green);font-size:9px}
+  .btn-support{display:flex;align-items:center;justify-content:center;gap:7px;background:rgba(99,102,241,.16);box-shadow:inset 0 0 0 1px rgba(99,102,241,.3);border:none;color:#c7cdfb;font-weight:700;font-size:12px;padding:9px;border-radius:10px;cursor:pointer}
+  .btn-support svg{width:15px;height:15px}
+
+  .main{flex:1;min-width:0;padding:18px 22px 40px}
+  .topbar{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+  .greeting h1{font-size:18px;font-weight:700}
+  .greeting p{color:var(--muted);font-size:12px;margin-top:2px}
+  .topbar .spacer{flex:1}
+  .pill{display:flex;align-items:center;gap:8px;background:#0e1426;border:1px solid var(--line);border-radius:10px;padding:8px 12px;color:#cfd6ea;font-weight:600;font-size:12px;cursor:pointer}
+  .pill svg{width:15px;height:15px;color:var(--muted)}
+  .iconbtn{position:relative;width:38px;height:38px;border-radius:10px;background:#0e1426;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:#cfd6ea;cursor:pointer}
+  .iconbtn svg{width:17px;height:17px}
+  .iconbtn .dot{position:absolute;top:-5px;right:-5px;background:var(--red);color:#fff;font-size:9px;font-weight:700;border-radius:20px;padding:1px 5px}
+  .planpick{display:flex;align-items:center;gap:10px;background:#0e1426;border:1px solid var(--line);border-radius:10px;padding:6px 8px 6px 12px}
+  .planpick .co{font-weight:700;font-size:12px;line-height:1.1}
+  .planpick .co span{display:block;color:var(--muted);font-weight:600;font-size:10.5px}
+  .planbadge{display:flex;align-items:center;gap:6px;border:none;color:#fff;font-weight:700;font-size:12px;border-radius:9px;padding:8px 13px;cursor:pointer;background:var(--blue)}
+  .planbadge svg{width:14px;height:14px}
+  body.growth .planbadge{background:var(--green)}
+  body.premium .planbadge{background:var(--purple)}
+  .segwrap{display:flex;align-items:center;gap:12px;margin:-2px 0 16px;flex-wrap:wrap}
+  .seg{display:inline-flex;background:#0e1426;border:1px solid var(--line);border-radius:10px;padding:3px}
+  .seg button{border:none;background:transparent;color:var(--muted);font-weight:700;font-size:12px;padding:7px 16px;border-radius:8px;cursor:pointer}
+  .seg button.active{background:rgba(99,102,241,.2);color:#fff;box-shadow:inset 0 0 0 1px rgba(99,102,241,.35)}
+  .segnote{font-size:11px;color:var(--muted2)}
+  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:#141b2e;border:1px solid #2a3350;color:#e8edf7;font-size:12.5px;font-weight:600;padding:11px 16px;border-radius:11px;display:flex;align-items:center;gap:9px;opacity:0;pointer-events:none;transition:.24s;z-index:50;box-shadow:0 12px 34px rgba(0,0,0,.45)}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .toast svg{width:16px;height:16px;color:#4ade80}
+  .clk{cursor:pointer;transition:.12s}
+  .kpi.clk:hover{border-color:#33405f;transform:translateY(-1px)}
+  tr.clk:hover td{background:#121a2e}
+  .overlay{position:fixed;inset:0;background:rgba(5,8,16,.64);opacity:0;pointer-events:none;transition:.2s;z-index:60;display:flex;align-items:center;justify-content:flex-end;padding:22px}
+  .overlay.show{opacity:1;pointer-events:auto}
+  .modal{width:100%;max-width:520px;max-height:88vh;overflow:auto;background:#0f1424;border:1px solid #232c46;border-radius:18px;box-shadow:0 30px 80px rgba(0,0,0,.55);transform:translateY(14px);transition:.2s;margin:auto}
+  .overlay.show .modal{transform:none}
+  .modal.drawer{max-width:430px;align-self:stretch;max-height:none;margin:0}
+  .mhead{display:flex;align-items:flex-start;gap:12px;padding:17px 20px;border-bottom:1px solid var(--line);position:sticky;top:0;background:#0f1424;z-index:2}
+  .mhead .mt{font-size:15px;font-weight:700}.mhead .ms{font-size:11.5px;color:var(--muted);margin-top:3px}
+  .mclose{margin-left:auto;width:30px;height:30px;flex:0 0 30px;border-radius:8px;border:1px solid var(--line);background:#0e1426;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .mclose svg{width:15px;height:15px}
+  .mbody{padding:18px 20px}
+  .mkpi{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+  .mkpi .c{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:11px 12px}
+  .mkpi .c .n{font-size:18px;font-weight:700}.mkpi .c .l{font-size:10.5px;color:var(--muted);margin-top:2px}
+  .mrow{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid #141b2e;font-size:12px;color:#cdd5ea}
+  .mrow:last-child{border-bottom:none}
+  .scoreb{display:flex;flex-direction:column;gap:9px;margin-top:4px}
+  .scoreb .r{display:flex;align-items:center;gap:10px;font-size:11.5px}
+  .scoreb .r .lab{width:118px;color:#cdd5ea}.scoreb .r .track{flex:1;height:6px;border-radius:20px;background:#151d31;overflow:hidden}
+  .scoreb .r .fill{height:100%;border-radius:20px}.scoreb .r .v{width:34px;text-align:right;color:var(--muted);font-weight:700}
+  .thread{display:flex;flex-direction:column;gap:7px;margin-top:4px}
+  .bub{max-width:80%;padding:8px 11px;border-radius:12px;font-size:11.5px;line-height:1.45}
+  .bub.in{align-self:flex-start;background:#161d33;color:#cdd5ea;border-bottom-left-radius:4px}
+  .bub.out{align-self:flex-end;background:rgba(99,102,241,.22);color:#dfe3ff;border-bottom-right-radius:4px}
+  .timeline{display:flex;flex-direction:column;margin-top:4px}
+  .tl{display:flex;gap:11px;padding-bottom:14px;position:relative}
+  .tl::before{content:"";position:absolute;left:6px;top:15px;bottom:-2px;width:2px;background:#1e273f}
+  .tl:last-child::before{display:none}
+  .tl .pt{width:14px;height:14px;border-radius:50%;flex:0 0 14px;margin-top:1px;border:2px solid #0f1424;z-index:1}
+  .tl .ti{font-size:12px;font-weight:600;color:#e8edf7}.tl .td{font-size:10.5px;color:var(--muted);margin-top:1px}
+  .mactions{display:flex;gap:8px;margin-top:16px}
+  .mactions button{flex:1;border:none;border-radius:10px;padding:10px;font-weight:700;font-size:12px;cursor:pointer}
+  .ma-primary{background:#6366f1;color:#fff}.ma-ghost{background:#0e1426;border:1px solid var(--line);color:#cdd5ea}
+
+  .kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:13px;margin-bottom:15px}
+  body.growth .kpis,body.premium .kpis{grid-template-columns:repeat(6,1fr)}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:14px 15px;position:relative;overflow:hidden}
+  .kpi::after{content:"";position:absolute;top:0;right:0;width:120px;height:60px;background:radial-gradient(80px 44px at 100% 0%, var(--glow,rgba(99,102,241,.10)), transparent 72%);pointer-events:none}
+  .kpi .top{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:11px;font-weight:600}
+  .kpi .ico{width:26px;height:26px;flex:0 0 26px;border-radius:8px;display:flex;align-items:center;justify-content:center}
+  .kpi .ico svg{width:15px;height:15px}
+  .kpi .num{font-size:25px;font-weight:700;margin-top:9px;letter-spacing:-.5px}
+  .kpi .delta{font-size:11px;font-weight:700;color:var(--green);margin-top:2px}
+  .kpi .spark{display:block;width:100%;height:34px;margin-top:8px}
+  .growth-only,.premium-only{display:none}
+  body.growth .growth-only,body.premium .growth-only,body.premium .premium-only{display:block}
+
+  .grid{display:grid;gap:13px;margin-bottom:13px}
+  .g-2-1{grid-template-columns:2fr 1fr}.g-3{grid-template-columns:repeat(3,1fr)}.g-2{grid-template-columns:1fr 1fr}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:16px}
+  .panel h3{font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px}
+  .panel h3 svg{width:15px;height:15px;color:var(--muted)}
+  .panel .head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .panel .head .sel{font-size:11px;color:var(--muted);background:#0e1426;border:1px solid var(--line);border-radius:8px;padding:4px 9px}
+  .viewall{color:var(--blue);font-size:11px;font-weight:700;cursor:pointer}
+  .bignum{font-size:23px;font-weight:700;letter-spacing:-.5px}
+  .bignum small{font-size:11px;color:var(--green);font-weight:700;margin-left:8px}
+  .sub{color:var(--muted);font-size:11px}
+
+  table{width:100%;border-collapse:collapse;font-size:11.5px}
+  th{text-align:left;color:var(--muted2);font-weight:600;font-size:10.5px;padding:7px 6px;border-bottom:1px solid var(--line)}
+  td{padding:9px 6px;border-bottom:1px solid #141b2e;color:#cdd5ea}
+  tr:last-child td{border-bottom:none}
+  .lead{display:flex;align-items:center;gap:9px}
+  .lavatar{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:10px}
+  .score{font-weight:700;color:#fff;border-radius:7px;padding:3px 8px;font-size:11px;display:inline-block}
+  .badge2{font-size:10px;font-weight:700;border-radius:20px;padding:2px 9px;display:inline-block}
+  .b-sent{background:rgba(34,197,94,.14);color:#4ade80}
+  .b-pend{background:rgba(245,158,11,.14);color:#fbbf24}
+  .callbtn{background:rgba(34,197,94,.12);color:#4ade80;border:1px solid rgba(34,197,94,.28);border-radius:8px;padding:4px 10px;font-size:10.5px;font-weight:700;cursor:pointer}
+  .followbtn{background:rgba(245,158,11,.12);color:#fbbf24;border:1px solid rgba(245,158,11,.28);border-radius:8px;padding:4px 10px;font-size:10.5px;font-weight:700;cursor:pointer}
+  .respond{background:rgba(236,72,153,.16);color:#f9a8d4;border:1px solid rgba(236,72,153,.32);border-radius:8px;padding:4px 11px;font-size:10.5px;font-weight:700;cursor:pointer}
+
+  .legend{display:flex;flex-direction:column;gap:7px;font-size:11px}
+  .legend .row{display:flex;align-items:center;gap:8px;color:#cdd5ea}
+  .legend .dot{width:9px;height:9px;border-radius:50%}
+  .legend .val{margin-left:auto;color:var(--muted);font-weight:600}
+  .donutwrap{position:relative;display:flex;align-items:center;justify-content:center}
+  .donutc{position:absolute;text-align:center}
+  .donutc .n{font-size:20px;font-weight:700}.donutc .l{font-size:10px;color:var(--muted)}
+
+  .leakmap{position:relative;height:200px;border-radius:12px;background:radial-gradient(560px 200px at 50% 125%, #141d34, #0a0f1d);overflow:hidden;border:1px solid #18203a}
+  .leakdot{position:absolute;border-radius:50%;transform:translate(-50%,-50%)}
+  .leakmap .total{position:absolute;left:14px;bottom:12px;font-size:11px;color:var(--muted)}
+  .leakmap .total b{display:block;font-size:18px;color:#fb7185;font-weight:700}
+
+  .barlist{display:flex;flex-direction:column;gap:10px;font-size:11px}
+  .barlist .row{display:flex;align-items:center;gap:10px}
+  .barlist .lab{width:120px;color:#cdd5ea}
+  .barlist .track{flex:1;height:7px;border-radius:20px;background:#151d31;overflow:hidden}
+  .barlist .fill{height:100%;border-radius:20px;background:linear-gradient(90deg,var(--green),#10b981)}
+  .barlist .v{width:36px;text-align:right;color:var(--muted);font-weight:700}
+
+  .snap{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}
+  .snap .card2{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 15px;display:flex;align-items:center;gap:12px}
+  .snap .ico{width:38px;height:38px;flex:0 0 38px;border-radius:11px;display:flex;align-items:center;justify-content:center}
+  .snap .ico svg{width:18px;height:18px}
+  .snap .l{color:var(--muted);font-size:11px}.snap .n{font-size:19px;font-weight:700}.snap .d{color:var(--green);font-size:11px;font-weight:700}
+
+  .coach{background:#11142e;border:1px solid #262253;border-radius:15px;padding:16px}
+  .coach h3{display:flex;align-items:center;gap:8px}
+  .coach h3 svg{width:15px;height:15px;color:#c4b5fd}
+  .coach .tag{background:rgba(139,92,246,.2);color:#c4b5fd;box-shadow:inset 0 0 0 1px rgba(139,92,246,.4);font-size:9px;font-weight:800;border-radius:6px;padding:2px 7px;margin-left:auto}
+  .coach .time{display:inline-block;background:#191545;border:1px solid #2f2960;color:#c4b5fd;border-radius:8px;padding:4px 10px;font-size:11px;font-weight:600;margin:6px 6px 0 0}
+  .coach .tip{margin-top:12px;font-size:11px;color:var(--muted)}.coach .tip b{color:#ddd6fe}
+  .runbtn{display:flex;align-items:center;justify-content:center;gap:7px;margin-top:14px;width:100%;background:rgba(139,92,246,.2);box-shadow:inset 0 0 0 1px rgba(139,92,246,.4);border:none;color:#ddd6fe;font-weight:700;padding:10px;border-radius:10px;cursor:pointer;font-size:12px}
+  .runbtn svg{width:15px;height:15px}
+  .opp{display:flex;flex-direction:column;gap:10px;margin-top:4px}
+  .opp .row{display:flex;align-items:center;font-size:12px;color:#cdd5ea}
+  .opp .row b{margin-left:auto;font-weight:700}
+  .opp .up{color:var(--green);font-weight:700;font-size:11px;margin-left:8px}
+
+  .footer{margin-top:18px;display:flex;align-items:center;justify-content:space-between;color:var(--muted2);font-size:11px}
+  .footer .live::before{content:"● ";color:var(--green)}
+
+  @media(max-width:1100px){.kpis,body.growth .kpis,body.premium .kpis{grid-template-columns:repeat(3,1fr)}.g-2-1,.g-3,.g-2{grid-template-columns:1fr}.snap{grid-template-columns:repeat(2,1fr)}.sidebar{display:none}}
+</style>
+</head>
+<body class="starter">
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo" id="brandLogo"></div>
+      <div class="name">PRESTIGE<span>INQUIRY</span></div>
+    </div>
+    <nav class="nav" id="nav"></nav>
+    <div class="side-foot">
+      <div class="userbox">
+        <div class="avatar">AR</div>
+        <div><div class="u-name">Austin R.</div><div class="u-role" id="roleLabel">Business Owner</div></div>
+      </div>
+      <button class="btn-support" id="supportBtn"></button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div class="greeting"><h1>Good morning, Austin</h1><p>Here's what's happening with Buckeye Roofing today.</p></div>
+      <div class="spacer"></div>
+      <div class="pill" id="datePill">May 12 – May 19, 2025</div>
+      <div class="pill" id="filterPill">Filters</div>
+      <div class="iconbtn" id="bellBtn"><span class="dot" id="bellDot">3</span></div>
+      <div class="planpick">
+        <div class="co">Buckeye Roofing<span>Columbus, OH</span></div>
+        <button class="planbadge" id="planBadge" onclick="cycleTier()"></button>
+      </div>
+    </div>
+    <div class="segwrap">
+      <div class="seg" id="seg">
+        <button data-t="starter" class="active">Starter</button>
+        <button data-t="growth">Growth</button>
+        <button data-t="premium">Premium</button>
+      </div>
+      <span class="segnote">All three plan views — click to switch. Buttons are clickable.</span>
+    </div>
+
+    <div class="kpis" id="kpis"></div>
+
+    <div class="grid g-2-1">
+      <div class="panel">
+        <div class="head">
+          <div><h3 id="revTitle"></h3><div class="bignum" id="revTotal"></div></div>
+          <div class="sel">This Month</div>
+        </div>
+        <canvas id="revChart" height="120"></canvas>
+      </div>
+      <div class="panel">
+        <div class="head"><h3 id="estTitle"></h3><span class="viewall">View All</span></div>
+        <div class="donutwrap" style="height:150px"><canvas id="estChart"></canvas><div class="donutc"><div class="n" id="estTotal">34</div><div class="l">Total</div></div></div>
+        <div class="legend" style="margin-top:10px">
+          <div class="row"><span class="dot" style="background:#3b82f6"></span>New<span class="val">8 · 24%</span></div>
+          <div class="row"><span class="dot" style="background:#22c55e"></span>Contacted<span class="val">10 · 29%</span></div>
+          <div class="row"><span class="dot" style="background:#8b5cf6"></span>Follow-Up<span class="val">9 · 26%</span></div>
+          <div class="row"><span class="dot" style="background:#f59e0b"></span>Waiting Reply<span class="val">5 · 15%</span></div>
+          <div class="row"><span class="dot" style="background:#ec4899"></span>Won<span class="val">2 · 6%</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid g-3 growth-only">
+      <div class="panel">
+        <div class="head"><h3 id="leakTitle"></h3><span class="sel">All Territories</span></div>
+        <div class="leakmap" id="leakmap"></div>
+        <div style="display:flex;gap:14px;margin-top:10px;font-size:10.5px;color:var(--muted)">
+          <span><span style="color:#fb7185">●</span> High $10k+</span><span><span style="color:#f59e0b">●</span> Med $2–10k</span>
+          <span><span style="color:#3b82f6">●</span> Low $500–2k</span><span><span style="color:#22c55e">●</span> Minimal &lt;$500</span>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="head"><h3 id="srcTitle"></h3><span class="sel">This Month</span></div>
+        <div class="donutwrap" style="height:140px"><canvas id="srcChart"></canvas><div class="donutc"><div class="n">$29.5k</div><div class="l">Recovered</div></div></div>
+        <div class="legend" style="margin-top:10px">
+          <div class="row"><span class="dot" style="background:#3b82f6"></span>Google Local Services<span class="val">$11,240 · 38%</span></div>
+          <div class="row"><span class="dot" style="background:#8b5cf6"></span>Google Ads<span class="val">$7,650 · 26%</span></div>
+          <div class="row"><span class="dot" style="background:#06b6d4"></span>Facebook Ads<span class="val">$5,120 · 17%</span></div>
+          <div class="row"><span class="dot" style="background:#22c55e"></span>Referral<span class="val">$3,280 · 11%</span></div>
+          <div class="row"><span class="dot" style="background:#f59e0b"></span>Website Organic<span class="val">$1,600 · 5%</span></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="head"><h3 id="vaultTitle"></h3><span class="viewall">View Vault</span></div>
+        <div style="display:flex;gap:18px;align-items:center;margin-bottom:14px">
+          <div><div class="bignum">612</div><div class="sub">Total Old Leads</div></div>
+          <div><div class="bignum" style="color:#4ade80">44</div><div class="sub">Reactivated</div></div>
+          <div><div class="bignum" style="color:#4ade80">7.2%</div><div class="sub">React. Rate</div></div>
+        </div>
+        <div class="sub" style="margin-bottom:8px;color:var(--muted2)">Top Reactivation Opportunities</div>
+        <div class="barlist">
+          <div class="row"><span class="lab">Roof Replacement</span><span class="track"><span class="fill" style="width:100%"></span></span><span class="v">198</span></div>
+          <div class="row"><span class="lab">Storm Damage</span><span class="track"><span class="fill" style="width:74%"></span></span><span class="v">146</span></div>
+          <div class="row"><span class="lab">Roof Repair</span><span class="track"><span class="fill" style="width:57%"></span></span><span class="v">112</span></div>
+          <div class="row"><span class="lab">Gutters</span><span class="track"><span class="fill" style="width:43%"></span></span><span class="v">86</span></div>
+          <div class="row"><span class="lab">Siding</span><span class="track"><span class="fill" style="width:35%"></span></span><span class="v">70</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid g-2">
+      <div class="panel">
+        <div class="head"><h3 id="hotTitle"></h3><span class="viewall">View All</span></div>
+        <table><thead><tr><th>Lead</th><th>Service</th><th>Last Contact</th><th>Est. Value</th><th>Score</th><th></th></tr></thead><tbody>
+          <tr><td><div class="lead"><span class="lavatar" style="background:linear-gradient(135deg,#3b82f6,#6366f1)">SJ</span>Sarah Johnson</div></td><td>Storm Damage</td><td>15 mins ago</td><td>$12,300</td><td><span class="score" style="background:#16a34a">98</span></td><td><button class="respond">Respond</button></td></tr>
+          <tr><td><div class="lead"><span class="lavatar" style="background:linear-gradient(135deg,#06b6d4,#3b82f6)">MD</span>Mike DeCarlos</div></td><td>Roof Replacement</td><td>32 mins ago</td><td>$18,500</td><td><span class="score" style="background:#16a34a">96</span></td><td><button class="respond">Respond</button></td></tr>
+          <tr><td><div class="lead"><span class="lavatar" style="background:linear-gradient(135deg,#8b5cf6,#ec4899)">JM</span>Jessica Martinez</div></td><td>Gutters</td><td>1 hour ago</td><td>$3,250</td><td><span class="score" style="background:#22c55e">92</span></td><td><button class="respond">Respond</button></td></tr>
+          <tr><td><div class="lead"><span class="lavatar" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">DW</span>David Wilson</div></td><td>Siding</td><td>2 hours ago</td><td>$8,000</td><td><span class="score" style="background:#65a30d">90</span></td><td><button class="respond">Respond</button></td></tr>
+          <tr><td><div class="lead"><span class="lavatar" style="background:linear-gradient(135deg,#ec4899,#f43f5e)">AL</span>Amanda Lee</div></td><td>Roof Repair</td><td>3 hours ago</td><td>$2,150</td><td><span class="score" style="background:#ca8a04">84</span></td><td><button class="respond">Respond</button></td></tr>
+        </tbody></table>
+      </div>
+      <div class="panel">
+        <div class="head"><h3 id="mcTitle"></h3><span class="viewall">View All</span></div>
+        <table><thead><tr><th>Caller</th><th>Location</th><th>Time</th><th>Service</th><th>Est.</th><th></th></tr></thead><tbody>
+          <tr><td>(512) 555-0187</td><td>Austin, TX</td><td>12 mins</td><td>Storm Damage</td><td>$18,500</td><td><button class="callbtn">Call Back</button></td></tr>
+          <tr><td>(512) 555-0142</td><td>Pflugerville</td><td>17 mins</td><td>Roof Replace</td><td>$15,250</td><td><button class="callbtn">Call Back</button></td></tr>
+          <tr><td>(512) 555-0091</td><td>Round Rock</td><td>31 mins</td><td>Gutters</td><td>$8,200</td><td><button class="callbtn">Call Back</button></td></tr>
+          <tr><td>(512) 555-0076</td><td>Cedar Park</td><td>1 hour</td><td>Siding</td><td>$9,600</td><td><button class="callbtn">Call Back</button></td></tr>
+          <tr><td>(512) 555-0044</td><td>Leander, TX</td><td>2 hours</td><td>Roof Repair</td><td>$4,200</td><td><button class="callbtn">Call Back</button></td></tr>
+        </tbody></table>
+      </div>
+    </div>
+
+    <div class="grid g-2">
+      <div class="panel growth-only">
+        <div class="head"><h3 id="rescueTitle"></h3><span class="viewall">View All</span></div>
+        <table><thead><tr><th>Customer</th><th>Project</th><th>Status</th><th>Est. Value</th><th>Days Idle</th><th></th></tr></thead><tbody>
+          <tr><td>Robert Thompson</td><td>Roof Replacement</td><td><span class="badge2 b-sent">Sent</span></td><td>$14,250</td><td>5</td><td><button class="followbtn">Follow Up</button></td></tr>
+          <tr><td>Kevin Brown</td><td>Storm Damage</td><td><span class="badge2 b-pend">Viewed</span></td><td>$9,800</td><td>4</td><td><button class="followbtn">Follow Up</button></td></tr>
+          <tr><td>Brian Taylor</td><td>Gutters</td><td><span class="badge2 b-sent">Sent</span></td><td>$7,400</td><td>7</td><td><button class="followbtn">Follow Up</button></td></tr>
+          <tr><td>Chris Anderson</td><td>Siding</td><td><span class="badge2 b-pend">Viewed</span></td><td>$6,150</td><td>6</td><td><button class="followbtn">Follow Up</button></td></tr>
+          <tr><td>Jennifer White</td><td>Roof Repair</td><td><span class="badge2 b-sent">Sent</span></td><td>$3,950</td><td>3</td><td><button class="followbtn">Follow Up</button></td></tr>
+        </tbody></table>
+      </div>
+      <div class="panel">
+        <div class="head"><h3 id="weekTitle"></h3><span class="sel">This Week</span></div>
+        <canvas id="weekChart" height="150"></canvas>
+        <div class="legend" style="flex-direction:row;gap:16px;margin-top:10px">
+          <div class="row"><span class="dot" style="background:#8b5cf6"></span>Conversations</div>
+          <div class="row"><span class="dot" style="background:#3b82f6"></span>Replies</div>
+          <div class="row"><span class="dot" style="background:#22c55e"></span>Jobs Won</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid g-2-1 premium-only">
+      <div class="panel">
+        <div class="head"><h3 id="repTitle"></h3><span class="sel">This Month</span></div>
+        <table><thead><tr><th>Rep</th><th>Conversations</th><th>Replies</th><th>Est. Sent</th><th>Jobs Won</th><th>Revenue</th></tr></thead><tbody>
+          <tr><td><div class="lead"><span class="lavatar" style="background:linear-gradient(135deg,#f59e0b,#ec4899)">AR</span>Austin R.</div></td><td>128</td><td>42</td><td>18</td><td>6</td><td>$18,750</td></tr>
+          <tr><td><div class="lead"><span class="lavatar" style="background:linear-gradient(135deg,#8b5cf6,#6366f1)">MS</span>Megan S.</div></td><td>96</td><td>31</td><td>13</td><td>4</td><td>$12,300</td></tr>
+          <tr><td><div class="lead"><span class="lavatar" style="background:linear-gradient(135deg,#06b6d4,#3b82f6)">TG</span>Tyler G.</div></td><td>82</td><td>27</td><td>9</td><td>2</td><td>$6,800</td></tr>
+          <tr><td><div class="lead"><span class="lavatar" style="background:linear-gradient(135deg,#22c55e,#10b981)">CD</span>Chris D.</div></td><td>74</td><td>21</td><td>8</td><td>1</td><td>$4,950</td></tr>
+        </tbody></table>
+      </div>
+      <div class="coach">
+        <h3 id="coachTitle"></h3>
+        <div class="tip" style="margin-top:8px">You have <b>14 high-intent leads</b> that haven't replied. Best times to contact them:</div>
+        <div><span class="time">Today 11am – 1pm</span><span class="time">Tomorrow 4pm – 6pm</span></div>
+        <div class="tip"><b>Coach Tip:</b> Leads that receive a text back within 5 minutes are <b>3.6× more likely</b> to convert.</div>
+        <div class="opp">
+          <div class="row">Follow ups <b>38</b><span class="up">↑12%</span></div>
+          <div class="row">Reply rate <b>28%</b><span class="up">↑8%</span></div>
+          <div class="row">Est. Revenue <b>$26,140</b><span class="up">↑22%</span></div>
+        </div>
+        <button class="runbtn" id="runBtn"></button>
+      </div>
+    </div>
+
+    <div class="snap" id="snap"></div>
+
+    <div class="footer">
+      <span class="live">Data updated just now</span>
+      <span id="planFoot">Prestige Inquiry Starter Plan</span>
+      <span>© 2025 Prestige Inquiry. All rights reserved.</span>
+    </div>
+  </main>
+</div>
+<div class="overlay" id="overlay"><div class="modal"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const I = {
+  grid:'<rect x="3" y="3" width="7" height="7" rx="1.4"/><rect x="14" y="3" width="7" height="7" rx="1.4"/><rect x="14" y="14" width="7" height="7" rx="1.4"/><rect x="3" y="14" width="7" height="7" rx="1.4"/>',
+  bolt:'<path d="M13 2 4 14h7l-1 8 10-13h-7z"/>',
+  layout:'<rect x="3" y="3" width="18" height="18" rx="2.2"/><path d="M3 9h18M9 9v12"/>',
+  users:'<circle cx="9" cy="8" r="3.2"/><path d="M3.5 20c0-3.2 2.8-5 5.5-5s5.5 1.8 5.5 5"/><path d="M16 6a3.2 3.2 0 0 1 0 6"/><path d="M20.5 20c0-2-1-3.4-2.8-4.2"/>',
+  columns:'<rect x="3.5" y="4" width="4" height="16" rx="1.2"/><rect x="10" y="4" width="4" height="16" rx="1.2"/><rect x="16.5" y="4" width="4" height="16" rx="1.2"/>',
+  message:'<path d="M4 5h16a1.4 1.4 0 0 1 1.4 1.4v8.2A1.4 1.4 0 0 1 20 16H9l-4 4v-4H4a1.4 1.4 0 0 1-1.4-1.4V6.4A1.4 1.4 0 0 1 4 5Z"/>',
+  phone:'<path d="M5 4h3l1.6 4.2-2.2 1.4a12 12 0 0 0 5 5l1.4-2.2L19 18v3a1.6 1.6 0 0 1-1.7 1.6A16.5 16.5 0 0 1 2.4 6.7 1.6 1.6 0 0 1 4 5Z"/>',
+  file:'<path d="M6.5 3h7L19 8.5V20a1 1 0 0 1-1 1H6.5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/><path d="M13 3v6h6"/><path d="M9 13h6M9 17h4"/>',
+  archive:'<rect x="3" y="4" width="18" height="4.2" rx="1.2"/><path d="M5 8.2V19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8.2"/><path d="M10 12h4"/>',
+  megaphone:'<path d="M4 10v4a1 1 0 0 0 1 1h2l4 4V5L7 9H5a1 1 0 0 0-1 1Z"/><path d="M11 5l8-3v20l-8-3"/>',
+  chart:'<path d="M3 21h18"/><rect x="5" y="11" width="3" height="8" rx="1"/><rect x="11" y="6" width="3" height="13" rx="1"/><rect x="17" y="14" width="3" height="5" rx="1"/>',
+  spark:'<path d="M12 3l1.7 4.3L18 9l-4.3 1.7L12 15l-1.7-4.3L6 9l4.3-1.7z"/><path d="M18.5 14.5l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/>',
+  trend:'<path d="M3 17l6-6 4 4 8-9"/><path d="M16 6h5v5"/>',
+  trophy:'<path d="M8 4h8v5a4 4 0 0 1-8 0Z"/><path d="M8 6H5a3 3 0 0 0 3 3M16 6h3a3 3 0 0 1-3 3"/><path d="M12 13v3M9 20h6M10 20a2 2 0 0 1 4 0"/>',
+  gear:'<circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.2 5.2l1.8 1.8M17 17l1.8 1.8M18.8 5.2L17 7M7 17l-1.8 1.8"/>',
+  card:'<rect x="3" y="5" width="18" height="14" rx="2.2"/><path d="M3 9.5h18M7 15h4"/>',
+  bell:'<path d="M6 9a6 6 0 0 1 12 0c0 4.5 1.8 5.6 1.8 5.6H4.2S6 13.5 6 9Z"/><path d="M10 19.5a2 2 0 0 0 4 0"/>',
+  calendar:'<rect x="3" y="4.5" width="18" height="16.5" rx="2.2"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/>',
+  filter:'<path d="M4 7h16M4 12h16M4 17h16"/><circle cx="9" cy="7" r="2.1" fill="#0e1426"/><circle cx="15" cy="12" r="2.1" fill="#0e1426"/><circle cx="8" cy="17" r="2.1" fill="#0e1426"/>',
+  dollar:'<path d="M12 2.5v19"/><path d="M16 6.5a3.6 3 0 0 0-3.4-2H10.5a3 3 0 0 0 0 6h3a3 3 0 0 1 0 6h-2.2a3.6 3 0 0 1-3.4-2"/>',
+  brief:'<rect x="3" y="7.5" width="18" height="12.5" rx="2.2"/><path d="M8.5 7.5V6a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v1.5M3 12.5h18"/>',
+  target:'<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3.8"/><circle cx="12" cy="12" r="1" fill="currentColor"/>',
+  flame:'<path d="M12 3c1 3 4 4 4 8a4 4 0 0 1-8 0c0-1.5.6-2.4 1.2-3 .2 1 .8 1.6 1.4 1.8C9.8 7 11 5 12 3Z"/>',
+  check:'<path d="M5 12l4 4 10-11"/>'
+};
+const svg = (n,extra='') => `<svg viewBox="0 0 24 24" ${extra}>${I[n]||''}</svg>`;
+
+const NAV = [
+  {l:'Dashboard',i:'grid',active:1},
+  {l:'Rescue Queue',i:'bolt',badge:'rq',tier:'growth'},
+  {l:'Revenue Leaks',i:'layout',tier:'growth'},
+  {l:'Leads',i:'users'},
+  {l:'Pipeline',i:'columns'},
+  {l:'Conversations',i:'message',badge:'conv'},
+  {l:'Missed Calls',i:'phone',badge:'mc'},
+  {l:'Estimates',i:'file'},
+  {l:'Old Lead Vault',i:'archive',tier:'growth'},
+  {l:'Campaigns',i:'megaphone',tier:'growth'},
+  {l:'Source ROI',i:'chart',tier:'growth'},
+  {l:'Sales Coach',i:'spark',ai:1,tier:'premium'},
+  {l:'Reports',i:'trend'},
+  {l:'Team Scoreboard',i:'trophy',tier:'premium'},
+  {l:'Settings',i:'gear'},
+  {l:'Billing',i:'card'},
+];
+
+const KPI = {
+  starter:[
+    {l:'Missed Calls Recovered',n:'142',d:'↑ 24%',i:'phone',c:'#60a5fa',bg:'rgba(59,130,246,.16)',g:'rgba(59,130,246,.12)',s:[8,10,9,13,12,15,18,16,20],sc:'#3b82f6'},
+    {l:'Hot Replies',n:'87',d:'↑ 31%',i:'message',c:'#a78bfa',bg:'rgba(139,92,246,.16)',g:'rgba(139,92,246,.12)',s:[5,7,6,9,12,10,14,16,17],sc:'#8b5cf6'},
+    {l:'Estimates in Follow-Up',n:'34',d:'↑ 12%',i:'file',c:'#fbbf24',bg:'rgba(245,158,11,.16)',g:'rgba(245,158,11,.10)',s:[4,5,5,6,7,6,8,9,9],sc:'#f59e0b'},
+    {l:'Jobs Won',n:'9',d:'↑ 29%',i:'trophy',c:'#fb7185',bg:'rgba(244,63,94,.16)',g:'rgba(244,63,94,.10)',s:[1,2,1,3,2,4,3,5,6],sc:'#f43f5e'},
+    {l:'Estimated Revenue Recovered',n:'$47,680',d:'↑ 38%',i:'dollar',c:'#a5b4fc',bg:'rgba(99,102,241,.18)',g:'rgba(99,102,241,.14)',s:[10,14,12,18,22,20,28,32,38],sc:'#6366f1'},
+  ],
+  growth:[
+    {l:'Missed Calls Recovered',n:'128',d:'↑ 24%',i:'phone',c:'#60a5fa',bg:'rgba(59,130,246,.16)',g:'rgba(59,130,246,.12)',s:[8,10,9,13,12,11,14,16,15],sc:'#3b82f6'},
+    {l:'Hot Replies',n:'76',d:'↑ 18%',i:'message',c:'#a78bfa',bg:'rgba(139,92,246,.16)',g:'rgba(139,92,246,.12)',s:[5,7,6,8,9,8,11,12,13],sc:'#8b5cf6'},
+    {l:'Estimates in Follow-Up',n:'29',d:'↑ 9%',i:'file',c:'#fbbf24',bg:'rgba(245,158,11,.16)',g:'rgba(245,158,11,.10)',s:[4,5,5,6,6,7,6,8,9],sc:'#f59e0b'},
+    {l:'Old Leads Reactivated',n:'44',d:'↑ 31%',i:'archive',c:'#4ade80',bg:'rgba(34,197,94,.16)',g:'rgba(34,197,94,.10)',s:[3,5,6,8,10,12,9,13,14],sc:'#22c55e'},
+    {l:'Jobs Won',n:'7',d:'↑ 17%',i:'trophy',c:'#fb7185',bg:'rgba(244,63,94,.16)',g:'rgba(244,63,94,.10)',s:[1,2,1,2,3,2,4,3,5],sc:'#f43f5e'},
+    {l:'Estimated Revenue Recovered',n:'$29,540',d:'↑ 28%',i:'dollar',c:'#a5b4fc',bg:'rgba(99,102,241,.18)',g:'rgba(99,102,241,.14)',s:[10,14,12,18,16,20,24,22,28],sc:'#6366f1'},
+  ],
+  premium:[
+    {l:'Missed Calls Recovered',n:'142',d:'↑ 24%',i:'phone',c:'#60a5fa',bg:'rgba(59,130,246,.16)',g:'rgba(59,130,246,.12)',s:[8,10,9,13,12,15,18,16,20],sc:'#3b82f6'},
+    {l:'Hot Replies',n:'87',d:'↑ 31%',i:'message',c:'#a78bfa',bg:'rgba(139,92,246,.16)',g:'rgba(139,92,246,.12)',s:[5,7,6,9,12,10,14,16,17],sc:'#8b5cf6'},
+    {l:'Estimates in Follow-Up',n:'34',d:'↑ 12%',i:'file',c:'#fbbf24',bg:'rgba(245,158,11,.16)',g:'rgba(245,158,11,.10)',s:[4,5,5,6,7,6,8,9,9],sc:'#f59e0b'},
+    {l:'Old Leads Reactivated',n:'56',d:'↑ 28%',i:'archive',c:'#4ade80',bg:'rgba(34,197,94,.16)',g:'rgba(34,197,94,.10)',s:[4,6,7,9,11,13,12,15,17],sc:'#22c55e'},
+    {l:'Jobs Won',n:'9',d:'↑ 29%',i:'trophy',c:'#fb7185',bg:'rgba(244,63,94,.16)',g:'rgba(244,63,94,.10)',s:[1,2,1,3,2,4,3,5,6],sc:'#f43f5e'},
+    {l:'Estimated Revenue Recovered',n:'$47,680',d:'↑ 38%',i:'dollar',c:'#a5b4fc',bg:'rgba(99,102,241,.18)',g:'rgba(99,102,241,.14)',s:[10,14,12,18,22,20,28,32,38],sc:'#6366f1'},
+  ],
+};
+const REV={starter:'$47,680',growth:'$29,540',premium:'$47,680'};
+const REVDATA={starter:[12,18,16,22,26,24,30,28,34,38,33,42,47.6],growth:[10,14,13,18,16,20,19,24,22,26,25,28,29.5],premium:[12,18,16,22,26,24,30,28,34,38,33,42,47.6]};
+
+function sparkSVG(arr,col){
+  const w=120,h=34,max=Math.max(...arr),min=Math.min(...arr);
+  const pts=arr.map((v,i)=>[i*(w/(arr.length-1)),h-2-((v-min)/(max-min||1))*(h-6)]);
+  const line=pts.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
+  const id='g'+Math.random().toString(36).slice(2,7);
+  return `<svg class="spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" style="stroke:none"><defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${col}" stop-opacity=".30"/><stop offset="1" stop-color="${col}" stop-opacity="0"/></linearGradient></defs><polygon points="0,${h} ${line} ${w},${h}" fill="url(#${id})"/><polyline points="${line}" fill="none" stroke="${col}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+}
+
+let tier='starter',revChart,estChart,weekChart,srcChart;
+const tiers=['starter','growth','premium'];
+const BADGE={rq:{starter:'9',growth:'9',premium:'14'},conv:{starter:'12',growth:'18',premium:'23'},mc:{starter:'9',growth:'7',premium:'9'}};
+
+function renderNav(){
+  const el=document.getElementById('nav');el.innerHTML='';
+  NAV.forEach(it=>{
+    if(it.tier==='growth'&&tier==='starter')return;
+    if(it.tier==='premium'&&tier!=='premium')return;
+    const a=document.createElement('a');if(it.active)a.className='active';
+    let extra='';
+    if(it.badge)extra=`<span class="badge ${it.badge==='conv'?'blue':''}">${BADGE[it.badge][tier]}</span>`;
+    if(it.ai)extra='<span class="ai">AI</span>';
+    a.innerHTML=`<span class="ic">${svg(it.i)}</span>${it.l}${extra}`;
+    el.appendChild(a);
+  });
+}
+function renderKPIs(){
+  const el=document.getElementById('kpis');el.innerHTML='';
+  KPI[tier].forEach(k=>{
+    const d=document.createElement('div');d.className='kpi clk';d.dataset.k=k.l;d.style.setProperty('--glow',k.g);
+    d.innerHTML=`<div class="top"><span class="ico" style="background:${k.bg};color:${k.c}">${svg(k.i)}</span>${k.l}</div><div class="num">${k.n}</div><div class="delta">${k.d}</div>${sparkSVG(k.s,k.sc)}`;
+    el.appendChild(d);
+  });
+}
+function renderSnap(){
+  const el=document.getElementById('snap');
+  const rows=[
+    {l:'Recovered Revenue',n:REV[tier],d:'↑ 38% vs last month',i:'dollar',c:'#a5b4fc',bg:'rgba(99,102,241,.16)'},
+    {l:'Average Job Value',n:'$5,298',d:'↑ 14% vs last month',i:'brief',c:'#60a5fa',bg:'rgba(59,130,246,.16)'},
+    {l:'Jobs Won',n:tier==='growth'?'7':'9',d:'↑ 29% vs last month',i:'trophy',c:'#4ade80',bg:'rgba(34,197,94,.16)'},
+    {l:'Close Rate',n:'26%',d:'↑ 8% vs last month',i:'target',c:'#fbbf24',bg:'rgba(245,158,11,.16)'},
+  ];
+  el.innerHTML=rows.map(r=>`<div class="card2"><div class="ico" style="background:${r.bg};color:${r.c}">${svg(r.i)}</div><div><div class="l">${r.l}</div><div class="n">${r.n}</div><div class="d">${r.d}</div></div></div>`).join('');
+}
+function buildLeakMap(){
+  const m=document.getElementById('leakmap');if(!m)return;m.innerHTML='';
+  const dots=[[30,42,16,'#fb7185'],[44,55,26,'#fb7185'],[58,40,13,'#f59e0b'],[68,60,20,'#fb7185'],[50,30,11,'#3b82f6'],[38,68,15,'#f59e0b'],[75,45,11,'#3b82f6'],[22,55,9,'#22c55e'],[62,72,13,'#f59e0b'],[82,62,16,'#fb7185'],[48,48,8,'#22c55e']];
+  dots.forEach(([x,y,s,c])=>{const dot=document.createElement('div');dot.className='leakdot';dot.style.cssText=`left:${x}%;top:${y}%;width:${s}px;height:${s}px;background:${c};box-shadow:0 0 ${s*0.9}px ${c}99`;m.appendChild(dot);});
+  const t=document.createElement('div');t.className='total';t.innerHTML='Total Leak Potential<b>$26,780</b>';m.appendChild(t);
+}
+function titles(){
+  document.getElementById('revTitle').innerHTML=svg('trend')+'Recovered Revenue Trend';
+  document.getElementById('revTotal').innerHTML=REV[tier]+' <small>↑ 38% vs Apr 12 – May 11</small>';
+  document.getElementById('estTitle').innerHTML=svg('file')+'Estimate Follow-Up';
+  document.getElementById('leakTitle').innerHTML=svg('layout')+'Revenue Leak Map';
+  document.getElementById('srcTitle').innerHTML=svg('chart')+'Lead Source ROI';
+  document.getElementById('vaultTitle').innerHTML=svg('archive')+'Old Lead Vault';
+  document.getElementById('hotTitle').innerHTML=svg('flame')+'Hot Leads Needing Action';
+  document.getElementById('mcTitle').innerHTML=svg('phone')+'Recent Missed Calls';
+  document.getElementById('rescueTitle').innerHTML=svg('file')+'Estimate Rescue Center';
+  document.getElementById('weekTitle').innerHTML=svg('chart')+'Weekly Activity';
+  document.getElementById('repTitle').innerHTML=svg('trophy')+'Rep Scoreboard';
+  document.getElementById('coachTitle').innerHTML=svg('spark')+'AI Sales Coach <span class="tag">New Insights</span>';
+}
+
+function makeCharts(){
+  const grid={color:'#161d31'},tickc='#5e6783';
+  if(revChart)revChart.destroy();
+  revChart=new Chart(document.getElementById('revChart'),{type:'line',
+    data:{labels:['May 7','','','May 10','','','May 13','','','May 16','','','May 19'],
+      datasets:[{data:REVDATA[tier],borderColor:'#8b5cf6',borderWidth:2.4,tension:.4,fill:true,pointRadius:0,
+        backgroundColor:c=>{const g=c.chart.ctx.createLinearGradient(0,0,0,220);g.addColorStop(0,'rgba(139,92,246,.32)');g.addColorStop(1,'rgba(139,92,246,0)');return g;}}]},
+    options:{plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:tickc,font:{size:10}}},y:{grid,ticks:{color:tickc,font:{size:10},callback:v=>'$'+v+'k'}}}}});
+  if(estChart)estChart.destroy();
+  estChart=new Chart(document.getElementById('estChart'),{type:'doughnut',data:{labels:['New','Contacted','Follow-Up','Waiting','Won'],datasets:[{data:[8,10,9,5,2],backgroundColor:['#3b82f6','#22c55e','#8b5cf6','#f59e0b','#ec4899'],borderWidth:0,cutout:'72%'}]},options:{plugins:{legend:{display:false}}}});
+  if(weekChart)weekChart.destroy();
+  weekChart=new Chart(document.getElementById('weekChart'),{type:'bar',data:{labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+    datasets:[{type:'line',label:'Jobs Won',data:[2,3,5,4,6,3,2],borderColor:'#22c55e',borderWidth:2,tension:.4,pointRadius:3,pointBackgroundColor:'#22c55e'},
+      {label:'Conversations',data:[40,55,75,60,80,45,30],backgroundColor:'#8b5cf6',borderRadius:5,barPercentage:.55},
+      {label:'Replies',data:[20,30,42,35,48,22,15],backgroundColor:'#3b82f6',borderRadius:5,barPercentage:.55}]},
+    options:{plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:tickc,font:{size:10}}},y:{grid,ticks:{color:tickc,font:{size:10}}}}}});
+  const sc=document.getElementById('srcChart');
+  if(sc){if(srcChart)srcChart.destroy();srcChart=new Chart(sc,{type:'doughnut',data:{labels:['GLS','Google','FB','Referral','Organic','Other'],datasets:[{data:[38,26,17,11,5,3],backgroundColor:['#3b82f6','#8b5cf6','#06b6d4','#22c55e','#f59e0b','#64748b'],borderWidth:0,cutout:'70%'}]},options:{plugins:{legend:{display:false}}}});}
+}
+
+function applyTier(){
+  document.body.className=tier;
+  const label=tier.charAt(0).toUpperCase()+tier.slice(1);
+  document.getElementById('brandLogo').innerHTML=svg('flame','width="18" height="18" style="stroke:#fff"');
+  document.getElementById('supportBtn').innerHTML=svg('message')+'Message Support';
+  document.getElementById('datePill').innerHTML=svg('calendar')+'May 12 – May 19, 2025';
+  document.getElementById('filterPill').innerHTML=svg('filter')+'Filters';
+  document.getElementById('bellBtn').innerHTML=svg('bell')+'<span class="dot" id="bellDot">'+(tier==='growth'?'2':'3')+'</span>';
+  const badgeIcon=tier==='starter'?'star':(tier==='growth'?'trend':'spark');
+  document.getElementById('planBadge').innerHTML=svg(badgeIcon==='star'?'spark':badgeIcon)+label;
+  document.getElementById('planFoot').textContent='Prestige Inquiry '+label+' Plan';
+  document.getElementById('roleLabel').textContent=tier==='starter'?'Business Owner':'Success Manager';
+  const rb=document.getElementById('runBtn');if(rb)rb.innerHTML=svg('bolt')+'Run Smart Follow-Up';
+  document.querySelectorAll('#seg button').forEach(b=>b.classList.toggle('active',b.dataset.t===tier));
+  renderNav();renderKPIs();renderSnap();titles();buildLeakMap();makeCharts();
+}
+function cycleTier(){tier=tiers[(tiers.indexOf(tier)+1)%3];applyTier();}
+applyTier();
+
+function toast(msg){const t=document.getElementById('toast');t.innerHTML=svg('check')+msg;t.classList.add('show');clearTimeout(window._tt);window._tt=setTimeout(()=>t.classList.remove('show'),2200);}
+document.querySelectorAll('.panel table tbody tr').forEach(r=>r.classList.add('clk'));
+
+const overlay=document.getElementById('overlay');
+function openModal(html,drawer){const m=overlay.querySelector('.modal');m.className='modal'+(drawer?' drawer':'');m.innerHTML=html;overlay.classList.add('show');}
+function closeModal(){overlay.classList.remove('show');}
+function mhead(t,s){return `<div class="mhead"><div><div class="mt">${t}</div><div class="ms">${s}</div></div><button class="mclose" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>`;}
+function bars(title,items){const max=Math.max(...items.map(i=>i[1])),cur=max>1000;
+  return `<div class="sub" style="margin:6px 0 8px;color:var(--muted2)">${title}</div><div class="scoreb">`+items.map(i=>`<div class="r"><span class="lab">${i[0]}</span><span class="track"><span class="fill" style="width:${Math.round(i[1]/max*100)}%;background:linear-gradient(90deg,#6366f1,#8b5cf6)"></span></span><span class="v">${cur?'$'+i[1].toLocaleString():i[1]}</span></div>`).join('')+`</div>`;}
+
+const LEADDATA={
+ 'Sarah Johnson':{phone:'(614) 555-0182',src:'Google Local Services',parts:[['Response speed',95,'#22c55e'],['Job value',92,'#3b82f6'],['Intent signals',99,'#ec4899'],['Engagement',88,'#8b5cf6']],thread:[['in','My roof got hit in last night’s storm — shingles all over the yard. Can someone come look?'],['out','So sorry to hear that, Sarah! This is Buckeye Roofing — we can get an inspector out today. What’s the address?'],['in','4212 Maple Ridge Dr. How soon?'],['out','We have a 2pm opening today. Want me to lock it in?'],['in','Yes please!']]},
+ 'Mike DeCarlos':{phone:'(614) 555-0114',src:'Google Ads',parts:[['Response speed',90,'#22c55e'],['Job value',98,'#3b82f6'],['Intent signals',95,'#ec4899'],['Engagement',84,'#8b5cf6']],thread:[['in','Looking to fully replace my roof. Got a quote yet?'],['out','Absolutely — happy to get you an exact number. Single or two-story?'],['in','Two-story, about 2,800 sq ft.']]},
+ 'Jessica Martinez':{phone:'(614) 555-0167',src:'Facebook Ads',parts:[['Response speed',88,'#22c55e'],['Job value',74,'#3b82f6'],['Intent signals',92,'#ec4899'],['Engagement',90,'#8b5cf6']],thread:[['in','Need new gutters installed. What’s the cost?'],['out','We can size that up fast — want a quick free measure this week?'],['in','Sure, Thursday works.']]},
+ 'David Wilson':{phone:'(614) 555-0143',src:'Referral',parts:[['Response speed',80,'#22c55e'],['Job value',86,'#3b82f6'],['Intent signals',88,'#ec4899'],['Engagement',78,'#8b5cf6']],thread:[['in','Neighbor used you for siding — can you quote mine?'],['out','Love a referral! Yes — what color/material are you thinking?']]},
+ 'Amanda Lee':{phone:'(614) 555-0198',src:'Website Organic',parts:[['Response speed',82,'#22c55e'],['Job value',70,'#3b82f6'],['Intent signals',84,'#ec4899'],['Engagement',80,'#8b5cf6']],thread:[['in','Got a small leak near the chimney. Repair?'],['out','We can take care of that — want to send a couple photos so we come prepared?']]}
+};
+
+function openLead(tr){
+ const name=tr.cells[0].textContent.trim(),svc=tr.cells[1].textContent.trim(),last=tr.cells[2].textContent.trim(),val=tr.cells[3].textContent.trim(),score=tr.cells[4].textContent.trim();
+ const d=LEADDATA[name]||{phone:'(614) 555-0100',src:'Web form',parts:[['Response speed',85,'#22c55e'],['Job value',80,'#3b82f6'],['Intent signals',85,'#ec4899'],['Engagement',78,'#8b5cf6']],thread:[['in','Interested in a quote for '+svc.toLowerCase()+'.'],['out','Happy to help! When works for a quick visit?']]};
+ const body=`<div class="mbody">
+  <div class="mkpi"><div class="c"><div class="n" style="color:#4ade80">${score}</div><div class="l">Lead score</div></div><div class="c"><div class="n">${val}</div><div class="l">Est. value</div></div><div class="c"><div class="n">${last}</div><div class="l">Last contact</div></div></div>
+  <div class="mrow"><span>Service</span><b>${svc}</b></div><div class="mrow"><span>Phone</span><b>${d.phone}</b></div><div class="mrow"><span>Source</span><b>${d.src}</b></div>
+  <div class="sub" style="margin:14px 0 6px;color:var(--muted2)">Why this lead is hot</div>
+  <div class="scoreb">${d.parts.map(p=>`<div class="r"><span class="lab">${p[0]}</span><span class="track"><span class="fill" style="width:${p[1]}%;background:${p[2]}"></span></span><span class="v">${p[1]}</span></div>`).join('')}</div>
+  <div class="sub" style="margin:14px 0 6px;color:var(--muted2)">Conversation</div>
+  <div class="thread">${d.thread.map(b=>`<div class="bub ${b[0]}">${b[1]}</div>`).join('')}</div>
+  <div class="mactions"><button class="ma-primary">Send reply</button><button class="ma-ghost">Call</button><button class="ma-ghost">Book estimate</button></div></div>`;
+ openModal(mhead(name,svc+' · score '+score)+body,true);
+}
+function openCall(tr){
+ const caller=tr.cells[0].textContent.trim(),loc=tr.cells[1].textContent.trim(),time=tr.cells[2].textContent.trim(),svc=tr.cells[3].textContent.trim(),est=tr.cells[4].textContent.trim();
+ const body=`<div class="mbody">
+  <div class="mkpi"><div class="c"><div class="n">${est}</div><div class="l">Est. value</div></div><div class="c"><div class="n" style="color:#4ade80">0:12</div><div class="l">Text-back time</div></div><div class="c"><div class="n">${time}</div><div class="l">Missed</div></div></div>
+  <div class="mrow"><span>Caller</span><b>${caller}</b></div><div class="mrow"><span>Location</span><b>${loc}</b></div><div class="mrow"><span>Likely service</span><b>${svc}</b></div>
+  <div class="sub" style="margin:14px 0 6px;color:var(--muted2)">What happened</div>
+  <div class="timeline">
+   <div class="tl"><span class="pt" style="background:#ef4444"></span><div><div class="ti">Missed call</div><div class="td">${time} ago · no answer</div></div></div>
+   <div class="tl"><span class="pt" style="background:#22c55e"></span><div><div class="ti">Auto text-back sent</div><div class="td">12 seconds later — “Sorry we missed you! This is Buckeye Roofing…”</div></div></div>
+   <div class="tl"><span class="pt" style="background:#3b82f6"></span><div><div class="ti">Awaiting reply</div><div class="td">Follow-up auto-queued in 1 hour if no response</div></div></div></div>
+  <div class="mactions"><button class="ma-primary">Call back</button><button class="ma-ghost">Send text</button></div></div>`;
+ openModal(mhead(caller,'Missed call · '+loc)+body);
+}
+function openEstimate(tr){
+ const cust=tr.cells[0].textContent.trim(),proj=tr.cells[1].textContent.trim(),status=tr.cells[2].textContent.trim(),val=tr.cells[3].textContent.trim(),days=tr.cells[4].textContent.trim();
+ const body=`<div class="mbody">
+  <div class="mkpi"><div class="c"><div class="n">${val}</div><div class="l">Estimate value</div></div><div class="c"><div class="n">${status}</div><div class="l">Status</div></div><div class="c"><div class="n" style="color:#fbbf24">${days}d</div><div class="l">Idle</div></div></div>
+  <div class="mrow"><span>Customer</span><b>${cust}</b></div><div class="mrow"><span>Project</span><b>${proj}</b></div>
+  <div class="sub" style="margin:14px 0 6px;color:var(--muted2)">Follow-up sequence</div>
+  <div class="timeline">
+   <div class="tl"><span class="pt" style="background:#22c55e"></span><div><div class="ti">Day 1 — Estimate sent</div><div class="td">Delivered &amp; opened</div></div></div>
+   <div class="tl"><span class="pt" style="background:#22c55e"></span><div><div class="ti">Day 3 — Check-in text</div><div class="td">“Any questions on your ${proj.toLowerCase()} quote?”</div></div></div>
+   <div class="tl"><span class="pt" style="background:#f59e0b"></span><div><div class="ti">Day 7 — Follow-up due now</div><div class="td">Value reminder + offer to call</div></div></div>
+   <div class="tl"><span class="pt" style="background:#1e273f"></span><div><div class="ti">Day 14 / Day 30</div><div class="td">Auto-scheduled if still no reply</div></div></div></div>
+  <div class="mactions"><button class="ma-primary">Send follow-up</button><button class="ma-ghost">Mark won</button><button class="ma-ghost">Mark lost</button></div></div>`;
+ openModal(mhead(cust,proj+' · '+val)+body);
+}
+function openRep(tr){
+ const rep=tr.cells[0].textContent.trim();
+ const body=`<div class="mbody">
+  <div class="mkpi"><div class="c"><div class="n">${tr.cells[1].textContent}</div><div class="l">Conversations</div></div><div class="c"><div class="n">${tr.cells[4].textContent}</div><div class="l">Jobs won</div></div><div class="c"><div class="n">${tr.cells[5].textContent}</div><div class="l">Revenue</div></div></div>
+  <div class="mrow"><span>Replies handled</span><b>${tr.cells[2].textContent}</b></div><div class="mrow"><span>Estimates sent</span><b>${tr.cells[3].textContent}</b></div>
+  <div class="sub" style="margin:14px 0 6px;color:var(--muted2)">Performance</div>
+  <div class="scoreb"><div class="r"><span class="lab">Avg response time</span><span class="track"><span class="fill" style="width:82%;background:#22c55e"></span></span><span class="v">4m</span></div><div class="r"><span class="lab">Reply rate</span><span class="track"><span class="fill" style="width:64%;background:#3b82f6"></span></span><span class="v">64%</span></div><div class="r"><span class="lab">Close rate</span><span class="track"><span class="fill" style="width:33%;background:#8b5cf6"></span></span><span class="v">33%</span></div></div></div>`;
+ openModal(mhead(rep,'Rep performance · this month')+body);
+}
+function openKPI(label){
+ const k=KPI[tier].find(x=>x.l===label)||{n:'',d:''};let b='';
+ if(label.includes('Missed Calls'))b=bars('Recovered by source',[['Inbound phone',64],['Web form',38],['Google LSA',24],['Facebook',16]]);
+ else if(label.includes('Hot Replies'))b=bars('Replies by intent',[['Ready to book',31],['Pricing question',28],['Scheduling',19],['General',9]]);
+ else if(label.includes('Estimates'))b=bars('By follow-up stage',[['New',8],['Contacted',10],['Follow-Up',9],['Waiting reply',5],['Won',2]]);
+ else if(label.includes('Old Leads'))b=bars('Reactivated by campaign',[['Storm win-back',18],['Old estimate',14],['Seasonal inspection',8],['Referral nudge',4]]);
+ else if(label.includes('Jobs Won'))b=bars('Won jobs (value)',[['Roof replacement',18500],['Storm damage',12300],['Siding',8000]]);
+ else b=bars('Revenue by source',[['Google Local Services',11240],['Google Ads',7650],['Facebook Ads',5120],['Referral',3280],['Website Organic',1600]]);
+ openModal(mhead(label,'This billing period · '+k.d+' vs last month')+`<div class="mbody"><div class="mkpi"><div class="c"><div class="n">${k.n}</div><div class="l">${label.includes('Revenue')?'Recovered':'Current'}</div></div><div class="c"><div class="n" style="color:#4ade80">${k.d}</div><div class="l">vs last month</div></div><div class="c"><div class="n">98%</div><div class="l">auto-handled</div></div></div>${b}</div>`);
+}
+function openNav(name){openModal(mhead(name,'Section preview')+`<div class="mbody"><div class="sub" style="color:var(--muted);line-height:1.6">This is the <b style="color:#cdd5ea">${name}</b> workspace. In the live app it opens the full ${name.toLowerCase()} table with search, filters, status badges, and a detail page for every record — same drill-down style you see on the dashboard cards.</div></div>`);}
+
+function routeRow(tr){const title=tr.closest('.panel').querySelector('h3').textContent;
+ if(title.includes('Hot Leads'))openLead(tr);
+ else if(title.includes('Missed Calls'))openCall(tr);
+ else if(title.includes('Estimate Rescue'))openEstimate(tr);
+ else if(title.includes('Rep Scoreboard'))openRep(tr);}
+
+document.getElementById('seg').addEventListener('click',e=>{const b=e.target.closest('button');if(b){tier=b.dataset.t;applyTier();document.querySelectorAll('.panel table tbody tr').forEach(r=>r.classList.add('clk'));}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+document.addEventListener('click',e=>{
+  if(e.target.closest('.mclose')||e.target.id==='overlay'){closeModal();return;}
+  const ab=e.target.closest('.respond,.callbtn,.followbtn,.runbtn,.viewall,.ma-primary,.ma-ghost');
+  if(ab){const tr=ab.closest('tr');const nm=tr?tr.cells[0].textContent.trim():'';
+    const t=ab.textContent.trim();
+    if(ab.classList.contains('runbtn'))toast('Running smart follow-up on 14 leads…');
+    else if(ab.classList.contains('viewall'))toast('Opening full view…');
+    else if(t==='Call'||t==='Call back'||t==='Call Back')toast('Calling '+(nm||'lead')+'…');
+    else toast(t+(nm?' · '+nm:''));
+    e.stopPropagation();return;}
+  const kpi=e.target.closest('.kpi');if(kpi){openKPI(kpi.dataset.k);return;}
+  const tr=e.target.closest('.panel table tbody tr');if(tr){routeRow(tr);return;}
+  const na=e.target.closest('.nav a');if(na){document.querySelectorAll('.nav a').forEach(x=>x.classList.remove('active'));na.classList.add('active');const nm=na.textContent.trim();if(!nm.includes('Dashboard'))openNav(nm);}
+});
+</script>
+</body>
+</html>
