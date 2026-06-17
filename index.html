@@ -3,356 +3,237 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Prestige Inquiry — Dashboard</title>
+<title>Prestige Inquiry — AI Revenue Recovery for Insurance Agencies</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
   :root{
-    --bg:#080b16;--panel:#0f1424;--card:#131a2c;--line:#1e273f;
-    --txt:#e8edf7;--muted:#8a93ac;--muted2:#5e6783;
+    --bg:#070a13;--panel:#0e1322;--card:#121829;--line:#1d2640;
+    --txt:#e9edf6;--muted:#8a93ac;--muted2:#5d6680;
     --blue:#3b82f6;--indigo:#6366f1;--purple:#8b5cf6;--pink:#ec4899;
-    --green:#22c55e;--teal:#06b6d4;--orange:#f59e0b;--red:#ef4444;
+    --green:#22c55e;--teal:#06b6d4;--orange:#f59e0b;--red:#ef4444;--gold:#d6b56a;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%}
-  body{
-    font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
-    background:radial-gradient(1100px 640px at 82% -12%, #131b30 0%, transparent 58%), radial-gradient(820px 560px at -8% 112%, #15122a 0%, transparent 55%), var(--bg);
-    color:var(--txt);-webkit-font-smoothing:antialiased;font-size:13px;
-  }
+  body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    background:radial-gradient(1000px 600px at 84% -14%, #121a30 0%, transparent 56%), var(--bg);
+    color:var(--txt);-webkit-font-smoothing:antialiased;font-size:13px}
   svg{stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
   .app{display:flex;min-height:100vh}
-
-  .sidebar{width:214px;flex:0 0 214px;background:#0a0e1c;border-right:1px solid var(--line);padding:18px 14px;display:flex;flex-direction:column;gap:6px;position:sticky;top:0;height:100vh}
-  .brand{display:flex;align-items:center;gap:11px;padding:6px 6px 16px}
-  .brand .logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 4px 12px rgba(99,102,241,.22)}
-  .brand .name{font-weight:700;font-size:13px;letter-spacing:.4px;line-height:1.05}
-  .brand .name span{display:block;color:var(--muted);font-weight:600;font-size:10.5px;letter-spacing:2.5px}
+  .sidebar{width:220px;flex:0 0 220px;background:#090c17;border-right:1px solid var(--line);padding:18px 14px;display:flex;flex-direction:column;gap:6px;position:sticky;top:0;height:100vh}
+  .brand{display:flex;align-items:center;gap:11px;padding:6px 6px 14px}
+  .brand .logo{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#2a3354,#3b4670);display:flex;align-items:center;justify-content:center;color:var(--gold)}
+  .brand .name{font-weight:700;font-size:13px;letter-spacing:.5px;line-height:1.05}
+  .brand .name span{display:block;color:var(--muted);font-weight:600;font-size:9.5px;letter-spacing:2.4px}
   .nav{display:flex;flex-direction:column;gap:2px;margin-top:2px}
   .nav a{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:9px;color:var(--muted);text-decoration:none;font-weight:600;font-size:12.5px;cursor:pointer;transition:.14s}
-  .nav a .ic{width:18px;height:18px;flex:0 0 18px;color:inherit;opacity:.85}
-  .nav a:hover{background:#131b30;color:#cfd6ea}
-  .nav a.active{background:rgba(99,102,241,.14);color:#fff;box-shadow:inset 0 0 0 1px rgba(99,102,241,.28)}
+  .nav a .ic{width:18px;height:18px;flex:0 0 18px;opacity:.8}
+  .nav a:hover{background:#121a30;color:#cfd6ea}
+  .nav a.active{background:rgba(99,102,241,.13);color:#fff;box-shadow:inset 0 0 0 1px rgba(99,102,241,.26)}
   .nav a.active .ic{opacity:1;color:#a5b4fc}
-  .nav a .badge{margin-left:auto;background:var(--pink);color:#fff;border-radius:20px;font-size:10px;font-weight:700;padding:1px 7px;min-width:18px;text-align:center}
-  .nav a .badge.blue{background:var(--blue)}
-  .nav a .ai{margin-left:auto;background:rgba(139,92,246,.2);color:#c4b5fd;border-radius:6px;font-size:9px;font-weight:800;padding:2px 6px;letter-spacing:.5px;box-shadow:inset 0 0 0 1px rgba(139,92,246,.35)}
+  .nav a .badge{margin-left:auto;background:rgba(214,181,106,.18);color:var(--gold);box-shadow:inset 0 0 0 1px rgba(214,181,106,.35);border-radius:20px;font-size:10px;font-weight:700;padding:1px 7px;min-width:18px;text-align:center}
+  .nav a .badge.blue{background:rgba(59,130,246,.16);color:#60a5fa;box-shadow:inset 0 0 0 1px rgba(59,130,246,.3)}
   .side-foot{margin-top:auto;display:flex;flex-direction:column;gap:10px}
-  .userbox{background:#0e1426;border:1px solid var(--line);border-radius:12px;padding:10px;display:flex;align-items:center;gap:9px}
-  .avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#ec4899);display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:11px}
-  .userbox .u-name{font-weight:700;font-size:12px}
-  .userbox .u-role{color:var(--muted);font-size:10.5px}
+  .userbox{background:#0d1322;border:1px solid var(--line);border-radius:12px;padding:10px;display:flex;align-items:center;gap:9px}
+  .avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#2a3354,#475080);display:flex;align-items:center;justify-content:center;font-weight:700;color:#dfe4f2;font-size:11px}
+  .userbox .u-name{font-weight:700;font-size:12px}.userbox .u-role{color:var(--muted);font-size:10.5px}
   .userbox .u-role::before{content:"● ";color:var(--green);font-size:9px}
-  .btn-support{display:flex;align-items:center;justify-content:center;gap:7px;background:rgba(99,102,241,.16);box-shadow:inset 0 0 0 1px rgba(99,102,241,.3);border:none;color:#c7cdfb;font-weight:700;font-size:12px;padding:9px;border-radius:10px;cursor:pointer}
+  .btn-support{display:flex;align-items:center;justify-content:center;gap:7px;background:#0d1322;box-shadow:inset 0 0 0 1px var(--line);border:none;color:#aeb6cc;font-weight:700;font-size:12px;padding:9px;border-radius:10px;cursor:pointer}
   .btn-support svg{width:15px;height:15px}
-
-  .main{flex:1;min-width:0;padding:18px 22px 40px}
-  .topbar{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
-  .greeting h1{font-size:18px;font-weight:700}
-  .greeting p{color:var(--muted);font-size:12px;margin-top:2px}
+  .main{flex:1;min-width:0;padding:18px 24px 40px}
+  .topbar{display:flex;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap}
+  .greeting h1{font-size:18px;font-weight:700}.greeting p{color:var(--muted);font-size:12px;margin-top:2px}
   .topbar .spacer{flex:1}
-  .pill{display:flex;align-items:center;gap:8px;background:#0e1426;border:1px solid var(--line);border-radius:10px;padding:8px 12px;color:#cfd6ea;font-weight:600;font-size:12px;cursor:pointer}
+  .pill{display:flex;align-items:center;gap:8px;background:#0d1322;border:1px solid var(--line);border-radius:10px;padding:8px 12px;color:#cfd6ea;font-weight:600;font-size:12px;cursor:pointer}
   .pill svg{width:15px;height:15px;color:var(--muted)}
-  .iconbtn{position:relative;width:38px;height:38px;border-radius:10px;background:#0e1426;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:#cfd6ea;cursor:pointer}
+  .iconbtn{position:relative;width:38px;height:38px;border-radius:10px;background:#0d1322;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:#cfd6ea;cursor:pointer}
   .iconbtn svg{width:17px;height:17px}
   .iconbtn .dot{position:absolute;top:-5px;right:-5px;background:var(--red);color:#fff;font-size:9px;font-weight:700;border-radius:20px;padding:1px 5px}
-  .planpick{display:flex;align-items:center;gap:10px;background:#0e1426;border:1px solid var(--line);border-radius:10px;padding:6px 8px 6px 12px}
-  .planpick .co{font-weight:700;font-size:12px;line-height:1.1}
-  .planpick .co span{display:block;color:var(--muted);font-weight:600;font-size:10.5px}
-  .planbadge{display:flex;align-items:center;gap:6px;border:none;color:#fff;font-weight:700;font-size:12px;border-radius:9px;padding:8px 13px;cursor:pointer;background:var(--blue)}
-  .planbadge svg{width:14px;height:14px}
-  body.growth .planbadge{background:var(--green)}
-  body.premium .planbadge{background:var(--purple)}
-  .segwrap{display:flex;align-items:center;gap:12px;margin:-2px 0 16px;flex-wrap:wrap}
-  .seg{display:inline-flex;background:#0e1426;border:1px solid var(--line);border-radius:10px;padding:3px}
-  .seg button{border:none;background:transparent;color:var(--muted);font-weight:700;font-size:12px;padding:7px 16px;border-radius:8px;cursor:pointer}
-  .seg button.active{background:rgba(99,102,241,.2);color:#fff;box-shadow:inset 0 0 0 1px rgba(99,102,241,.35)}
-  .segnote{font-size:11px;color:var(--muted2)}
-  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:#141b2e;border:1px solid #2a3350;color:#e8edf7;font-size:12.5px;font-weight:600;padding:11px 16px;border-radius:11px;display:flex;align-items:center;gap:9px;opacity:0;pointer-events:none;transition:.24s;z-index:50;box-shadow:0 12px 34px rgba(0,0,0,.45)}
-  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-  .toast svg{width:16px;height:16px;color:#4ade80}
-  .clk{cursor:pointer;transition:.12s}
-  .kpi.clk:hover{border-color:#33405f;transform:translateY(-1px)}
-  tr.clk:hover td{background:#121a2e}
-  .overlay{position:fixed;inset:0;background:rgba(5,8,16,.64);opacity:0;pointer-events:none;transition:.2s;z-index:60;display:flex;align-items:center;justify-content:flex-end;padding:22px}
-  .overlay.show{opacity:1;pointer-events:auto}
-  .modal{width:100%;max-width:520px;max-height:88vh;overflow:auto;background:#0f1424;border:1px solid #232c46;border-radius:18px;box-shadow:0 30px 80px rgba(0,0,0,.55);transform:translateY(14px);transition:.2s;margin:auto}
-  .overlay.show .modal{transform:none}
-  .modal.drawer{max-width:430px;align-self:stretch;max-height:none;margin:0}
-  .mhead{display:flex;align-items:flex-start;gap:12px;padding:17px 20px;border-bottom:1px solid var(--line);position:sticky;top:0;background:#0f1424;z-index:2}
-  .mhead .mt{font-size:15px;font-weight:700}.mhead .ms{font-size:11.5px;color:var(--muted);margin-top:3px}
-  .mclose{margin-left:auto;width:30px;height:30px;flex:0 0 30px;border-radius:8px;border:1px solid var(--line);background:#0e1426;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center}
-  .mclose svg{width:15px;height:15px}
-  .mbody{padding:18px 20px}
-  .mkpi{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
-  .mkpi .c{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:11px 12px}
-  .mkpi .c .n{font-size:18px;font-weight:700}.mkpi .c .l{font-size:10.5px;color:var(--muted);margin-top:2px}
-  .mrow{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid #141b2e;font-size:12px;color:#cdd5ea}
-  .mrow:last-child{border-bottom:none}
-  .scoreb{display:flex;flex-direction:column;gap:9px;margin-top:4px}
-  .scoreb .r{display:flex;align-items:center;gap:10px;font-size:11.5px}
-  .scoreb .r .lab{width:118px;color:#cdd5ea}.scoreb .r .track{flex:1;height:6px;border-radius:20px;background:#151d31;overflow:hidden}
-  .scoreb .r .fill{height:100%;border-radius:20px}.scoreb .r .v{width:34px;text-align:right;color:var(--muted);font-weight:700}
-  .thread{display:flex;flex-direction:column;gap:7px;margin-top:4px}
-  .bub{max-width:80%;padding:8px 11px;border-radius:12px;font-size:11.5px;line-height:1.45}
-  .bub.in{align-self:flex-start;background:#161d33;color:#cdd5ea;border-bottom-left-radius:4px}
-  .bub.out{align-self:flex-end;background:rgba(99,102,241,.22);color:#dfe3ff;border-bottom-right-radius:4px}
-  .timeline{display:flex;flex-direction:column;margin-top:4px}
-  .tl{display:flex;gap:11px;padding-bottom:14px;position:relative}
-  .tl::before{content:"";position:absolute;left:6px;top:15px;bottom:-2px;width:2px;background:#1e273f}
-  .tl:last-child::before{display:none}
-  .tl .pt{width:14px;height:14px;border-radius:50%;flex:0 0 14px;margin-top:1px;border:2px solid #0f1424;z-index:1}
-  .tl .ti{font-size:12px;font-weight:600;color:#e8edf7}.tl .td{font-size:10.5px;color:var(--muted);margin-top:1px}
-  .mactions{display:flex;gap:8px;margin-top:16px}
-  .mactions button{flex:1;border:none;border-radius:10px;padding:10px;font-weight:700;font-size:12px;cursor:pointer}
-  .ma-primary{background:#6366f1;color:#fff}.ma-ghost{background:#0e1426;border:1px solid var(--line);color:#cdd5ea}
+  .upload{display:flex;align-items:center;gap:8px;border:none;color:#0c1020;font-weight:700;font-size:12.5px;border-radius:10px;padding:9px 15px;cursor:pointer;background:linear-gradient(135deg,#e6cd8f,#c9a85a)}
+  .upload svg{width:15px;height:15px;color:#0c1020}
+  .agency{display:flex;align-items:center;gap:9px;background:#0d1322;border:1px solid var(--line);border-radius:10px;padding:7px 12px}
+  .agency .co{font-weight:700;font-size:12px;line-height:1.1}.agency .co span{display:block;color:var(--muted);font-weight:600;font-size:10.5px}
 
-  .kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:13px;margin-bottom:15px}
-  body.growth .kpis,body.premium .kpis{grid-template-columns:repeat(6,1fr)}
-  .kpi{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:14px 15px;position:relative;overflow:hidden}
-  .kpi::after{content:"";position:absolute;top:0;right:0;width:120px;height:60px;background:radial-gradient(80px 44px at 100% 0%, var(--glow,rgba(99,102,241,.10)), transparent 72%);pointer-events:none}
+  .kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:13px;margin-bottom:14px}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 15px}
+  .kpi.gold{box-shadow:inset 0 0 0 1px rgba(214,181,106,.28)}
   .kpi .top{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:11px;font-weight:600}
-  .kpi .ico{width:26px;height:26px;flex:0 0 26px;border-radius:8px;display:flex;align-items:center;justify-content:center}
-  .kpi .ico svg{width:15px;height:15px}
-  .kpi .num{font-size:25px;font-weight:700;margin-top:9px;letter-spacing:-.5px}
+  .kpi .ico{width:26px;height:26px;flex:0 0 26px;border-radius:8px;display:flex;align-items:center;justify-content:center}.kpi .ico svg{width:15px;height:15px}
+  .kpi .num{font-size:24px;font-weight:700;margin-top:9px;letter-spacing:-.5px}
   .kpi .delta{font-size:11px;font-weight:700;color:var(--green);margin-top:2px}
-  .kpi .spark{display:block;width:100%;height:34px;margin-top:8px}
-  .growth-only,.premium-only{display:none}
-  body.growth .growth-only,body.premium .growth-only,body.premium .premium-only{display:block}
-
+  .kpi .spark{display:block;width:100%;height:32px;margin-top:8px}
   .grid{display:grid;gap:13px;margin-bottom:13px}
-  .g-2-1{grid-template-columns:2fr 1fr}.g-3{grid-template-columns:repeat(3,1fr)}.g-2{grid-template-columns:1fr 1fr}
-  .panel{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:16px}
-  .panel h3{font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px}
-  .panel h3 svg{width:15px;height:15px;color:var(--muted)}
-  .panel .head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-  .panel .head .sel{font-size:11px;color:var(--muted);background:#0e1426;border:1px solid var(--line);border-radius:8px;padding:4px 9px}
-  .viewall{color:var(--blue);font-size:11px;font-weight:700;cursor:pointer}
-  .bignum{font-size:23px;font-weight:700;letter-spacing:-.5px}
-  .bignum small{font-size:11px;color:var(--green);font-weight:700;margin-left:8px}
+  .g-2-1{grid-template-columns:2fr 1fr}.g-2{grid-template-columns:1fr 1fr}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px}
+  .panel h3{font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px}.panel h3 svg{width:15px;height:15px;color:var(--muted)}
+  .panel .head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:10px;flex-wrap:wrap}
+  .panel .head .sel{font-size:11px;color:var(--muted);background:#0d1322;border:1px solid var(--line);border-radius:8px;padding:4px 9px}
+  .viewall{color:#60a5fa;font-size:11px;font-weight:700;cursor:pointer}
+  .bignum{font-size:23px;font-weight:700;letter-spacing:-.5px}.bignum small{font-size:11px;color:var(--green);font-weight:700;margin-left:8px}
   .sub{color:var(--muted);font-size:11px}
-
-  table{width:100%;border-collapse:collapse;font-size:11.5px}
-  th{text-align:left;color:var(--muted2);font-weight:600;font-size:10.5px;padding:7px 6px;border-bottom:1px solid var(--line)}
-  td{padding:9px 6px;border-bottom:1px solid #141b2e;color:#cdd5ea}
-  tr:last-child td{border-bottom:none}
-  .lead{display:flex;align-items:center;gap:9px}
-  .lavatar{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:10px}
-  .score{font-weight:700;color:#fff;border-radius:7px;padding:3px 8px;font-size:11px;display:inline-block}
-  .badge2{font-size:10px;font-weight:700;border-radius:20px;padding:2px 9px;display:inline-block}
-  .b-sent{background:rgba(34,197,94,.14);color:#4ade80}
-  .b-pend{background:rgba(245,158,11,.14);color:#fbbf24}
-  .callbtn{background:rgba(34,197,94,.12);color:#4ade80;border:1px solid rgba(34,197,94,.28);border-radius:8px;padding:4px 10px;font-size:10.5px;font-weight:700;cursor:pointer}
-  .followbtn{background:rgba(245,158,11,.12);color:#fbbf24;border:1px solid rgba(245,158,11,.28);border-radius:8px;padding:4px 10px;font-size:10.5px;font-weight:700;cursor:pointer}
-  .respond{background:rgba(236,72,153,.16);color:#f9a8d4;border:1px solid rgba(236,72,153,.32);border-radius:8px;padding:4px 11px;font-size:10.5px;font-weight:700;cursor:pointer}
-
   .legend{display:flex;flex-direction:column;gap:7px;font-size:11px}
-  .legend .row{display:flex;align-items:center;gap:8px;color:#cdd5ea}
-  .legend .dot{width:9px;height:9px;border-radius:50%}
-  .legend .val{margin-left:auto;color:var(--muted);font-weight:600}
+  .legend .row{display:flex;align-items:center;gap:8px;color:#cdd5ea}.legend .dot{width:9px;height:9px;border-radius:50%}.legend .val{margin-left:auto;color:var(--muted);font-weight:600}
   .donutwrap{position:relative;display:flex;align-items:center;justify-content:center}
-  .donutc{position:absolute;text-align:center}
-  .donutc .n{font-size:20px;font-weight:700}.donutc .l{font-size:10px;color:var(--muted)}
+  .donutc{position:absolute;text-align:center}.donutc .n{font-size:19px;font-weight:700}.donutc .l{font-size:10px;color:var(--muted)}
 
-  .leakmap{position:relative;height:200px;border-radius:12px;background:radial-gradient(560px 200px at 50% 125%, #141d34, #0a0f1d);overflow:hidden;border:1px solid #18203a}
-  .leakdot{position:absolute;border-radius:50%;transform:translate(-50%,-50%)}
-  .leakmap .total{position:absolute;left:14px;bottom:12px;font-size:11px;color:var(--muted)}
-  .leakmap .total b{display:block;font-size:18px;color:#fb7185;font-weight:700}
-
-  .barlist{display:flex;flex-direction:column;gap:10px;font-size:11px}
+  .biz{display:grid;grid-template-columns:1.1fr 1fr;gap:20px;align-items:center}
+  .biz .stats{display:flex;gap:26px;margin:6px 0 14px}
+  .biz .stats .n{font-size:26px;font-weight:700;letter-spacing:-.5px}
+  .biz .stats .n.gold{color:var(--gold)}
+  .biz .stats .l{font-size:11px;color:var(--muted);margin-top:2px}
+  .barlist{display:flex;flex-direction:column;gap:9px;font-size:11px}
   .barlist .row{display:flex;align-items:center;gap:10px}
-  .barlist .lab{width:120px;color:#cdd5ea}
-  .barlist .track{flex:1;height:7px;border-radius:20px;background:#151d31;overflow:hidden}
-  .barlist .fill{height:100%;border-radius:20px;background:linear-gradient(90deg,var(--green),#10b981)}
-  .barlist .v{width:36px;text-align:right;color:var(--muted);font-weight:700}
+  .barlist .lab{width:150px;color:#cdd5ea}.barlist .track{flex:1;height:7px;border-radius:20px;background:#141b2e;overflow:hidden}.barlist .fill{height:100%;border-radius:20px}
+  .barlist .v{width:64px;text-align:right;color:var(--muted);font-weight:700}
+  .bizactions{display:flex;gap:8px;margin-top:16px}
+  .bizactions button{border:none;border-radius:9px;padding:9px 14px;font-weight:700;font-size:12px;cursor:pointer}
+  .b-gold{background:linear-gradient(135deg,#e6cd8f,#c9a85a);color:#0c1020}.b-ghost{background:#0d1322;box-shadow:inset 0 0 0 1px var(--line);color:#cdd5ea}
+
+  table{width:100%;border-collapse:collapse;font-size:11.8px}
+  th{text-align:left;color:var(--muted2);font-weight:600;font-size:10.5px;padding:8px 8px;border-bottom:1px solid var(--line)}
+  td{padding:11px 8px;border-bottom:1px solid #131a2c;color:#cdd5ea}
+  tr:last-child td{border-bottom:none}
+  .client{display:flex;align-items:center;gap:9px;font-weight:600;color:#e9edf6}
+  .cav{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:10px}
+  .otype{font-size:10.5px;font-weight:700;border-radius:7px;padding:3px 9px;display:inline-block}
+  .rev{font-weight:700;color:var(--gold)}
+  .score{font-weight:700;color:#fff;border-radius:7px;padding:3px 9px;font-size:11px;display:inline-block}
+  .actbtn{background:rgba(99,102,241,.16);color:#c7cdfb;border:1px solid rgba(99,102,241,.32);border-radius:8px;padding:5px 11px;font-size:10.5px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+  .actbtn svg{width:13px;height:13px}
+  .searchbar{display:flex;align-items:center;gap:8px;background:#0d1322;border:1px solid var(--line);border-radius:9px;padding:6px 10px;width:200px}
+  .searchbar svg{width:14px;height:14px;color:var(--muted2)}.searchbar input{background:transparent;border:none;outline:none;color:#e9edf6;font-size:12px;width:100%}
+
+  .live{display:flex;align-items:center;gap:6px;font-size:10.5px;color:#4ade80;font-weight:700}
+  .live .pulse{width:7px;height:7px;border-radius:50%;background:#22c55e;animation:pulse 1.6s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(34,197,94,.5)}70%{box-shadow:0 0 0 7px rgba(34,197,94,0)}100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}}
+  .feed{display:flex;flex-direction:column;gap:2px;max-height:300px;overflow:hidden}
+  .fitem{display:flex;align-items:flex-start;gap:10px;padding:9px 4px;border-bottom:1px solid #131a2c;animation:slidein .35s ease}.fitem:last-child{border-bottom:none}
+  @keyframes slidein{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+  .fdot{width:9px;height:9px;border-radius:50%;margin-top:4px;flex:0 0 9px}.fmsg{font-size:11.8px;color:#dbe1f0;font-weight:500}.ft{font-size:10px;color:var(--muted2);margin-top:1px}
 
   .snap{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}
-  .snap .card2{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 15px;display:flex;align-items:center;gap:12px}
-  .snap .ico{width:38px;height:38px;flex:0 0 38px;border-radius:11px;display:flex;align-items:center;justify-content:center}
-  .snap .ico svg{width:18px;height:18px}
+  .snap .card2{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:13px 15px;display:flex;align-items:center;gap:12px}
+  .snap .ico{width:38px;height:38px;flex:0 0 38px;border-radius:11px;display:flex;align-items:center;justify-content:center}.snap .ico svg{width:18px;height:18px}
   .snap .l{color:var(--muted);font-size:11px}.snap .n{font-size:19px;font-weight:700}.snap .d{color:var(--green);font-size:11px;font-weight:700}
 
-  .coach{background:#11142e;border:1px solid #262253;border-radius:15px;padding:16px}
-  .coach h3{display:flex;align-items:center;gap:8px}
-  .coach h3 svg{width:15px;height:15px;color:#c4b5fd}
-  .coach .tag{background:rgba(139,92,246,.2);color:#c4b5fd;box-shadow:inset 0 0 0 1px rgba(139,92,246,.4);font-size:9px;font-weight:800;border-radius:6px;padding:2px 7px;margin-left:auto}
-  .coach .time{display:inline-block;background:#191545;border:1px solid #2f2960;color:#c4b5fd;border-radius:8px;padding:4px 10px;font-size:11px;font-weight:600;margin:6px 6px 0 0}
-  .coach .tip{margin-top:12px;font-size:11px;color:var(--muted)}.coach .tip b{color:#ddd6fe}
-  .runbtn{display:flex;align-items:center;justify-content:center;gap:7px;margin-top:14px;width:100%;background:rgba(139,92,246,.2);box-shadow:inset 0 0 0 1px rgba(139,92,246,.4);border:none;color:#ddd6fe;font-weight:700;padding:10px;border-radius:10px;cursor:pointer;font-size:12px}
-  .runbtn svg{width:15px;height:15px}
-  .opp{display:flex;flex-direction:column;gap:10px;margin-top:4px}
-  .opp .row{display:flex;align-items:center;font-size:12px;color:#cdd5ea}
-  .opp .row b{margin-left:auto;font-weight:700}
-  .opp .up{color:var(--green);font-weight:700;font-size:11px;margin-left:8px}
+  .coach{background:#10142a;border:1px solid #24224a;border-radius:14px;padding:16px}
+  .coach h3{display:flex;align-items:center;gap:8px}.coach h3 svg{width:15px;height:15px;color:var(--gold)}
+  .coach .tag{background:rgba(214,181,106,.16);color:var(--gold);box-shadow:inset 0 0 0 1px rgba(214,181,106,.35);font-size:9px;font-weight:800;border-radius:6px;padding:2px 7px;margin-left:auto}
+  .coach .tip{margin-top:12px;font-size:11.5px;color:var(--muted);line-height:1.55}.coach .tip b{color:#e7d9b4}
+  .opp{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+  .opp .row{display:flex;align-items:center;font-size:12px;color:#cdd5ea}.opp .row b{margin-left:auto;font-weight:700}.opp .up{color:var(--green);font-weight:700;font-size:11px;margin-left:8px}
+  .runbtn{display:flex;align-items:center;justify-content:center;gap:7px;margin-top:14px;width:100%;background:linear-gradient(135deg,#e6cd8f,#c9a85a);border:none;color:#0c1020;font-weight:700;padding:10px;border-radius:10px;cursor:pointer;font-size:12px}.runbtn svg{width:15px;height:15px;color:#0c1020}
 
-  .footer{margin-top:18px;display:flex;align-items:center;justify-content:space-between;color:var(--muted2);font-size:11px}
-  .footer .live::before{content:"● ";color:var(--green)}
-
-  @media(max-width:1100px){.kpis,body.growth .kpis,body.premium .kpis{grid-template-columns:repeat(3,1fr)}.g-2-1,.g-3,.g-2{grid-template-columns:1fr}.snap{grid-template-columns:repeat(2,1fr)}.sidebar{display:none}}
+  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:#141b2e;border:1px solid #2a3350;color:#e9edf6;font-size:12.5px;font-weight:600;padding:11px 16px;border-radius:11px;display:flex;align-items:center;gap:9px;opacity:0;pointer-events:none;transition:.24s;z-index:50;box-shadow:0 12px 34px rgba(0,0,0,.45)}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}.toast svg{width:16px;height:16px;color:var(--gold)}
+  .overlay{position:fixed;inset:0;background:rgba(4,6,12,.66);opacity:0;pointer-events:none;transition:.2s;z-index:60;display:flex;align-items:center;justify-content:flex-end;padding:22px}
+  .overlay.show{opacity:1;pointer-events:auto}
+  .modal{width:100%;max-width:520px;max-height:90vh;overflow:auto;background:#0e1322;border:1px solid #232c46;border-radius:18px;box-shadow:0 30px 80px rgba(0,0,0,.55);transform:translateY(14px);transition:.2s;margin:auto}
+  .overlay.show .modal{transform:none}
+  .mhead{display:flex;align-items:flex-start;gap:12px;padding:17px 20px;border-bottom:1px solid var(--line);position:sticky;top:0;background:#0e1322;z-index:2}
+  .mhead .mt{font-size:15px;font-weight:700}.mhead .ms{font-size:11.5px;color:var(--muted);margin-top:3px}
+  .mclose{margin-left:auto;width:30px;height:30px;flex:0 0 30px;border-radius:8px;border:1px solid var(--line);background:#0d1322;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center}.mclose svg{width:15px;height:15px}
+  .mbody{padding:18px 20px}
+  .mkpi{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+  .mkpi .c{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:11px 12px}.mkpi .c .n{font-size:18px;font-weight:700}.mkpi .c .l{font-size:10.5px;color:var(--muted);margin-top:2px}
+  .mrow{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid #131a2c;font-size:12px;color:#cdd5ea}.mrow:last-child{border-bottom:none}
+  .tabs{display:flex;gap:6px;margin:4px 0 14px;flex-wrap:wrap}
+  .tab{border:1px solid var(--line);background:#0d1322;color:var(--muted);font-weight:700;font-size:11.5px;padding:7px 12px;border-radius:9px;cursor:pointer}
+  .tab.active{background:rgba(99,102,241,.18);color:#fff;border-color:rgba(99,102,241,.4)}
+  .tabbody{display:none}.tabbody.show{display:block}
+  .draft{background:#0c1120;border:1px solid var(--line);border-radius:11px;padding:13px 14px;font-size:12px;color:#d6dcec;line-height:1.6;white-space:pre-line}
+  .draft .esub{font-weight:700;color:#fff;margin-bottom:6px;display:block}
+  .copy{display:inline-flex;align-items:center;gap:6px;margin-top:10px;background:#0d1322;border:1px solid var(--line);color:#aeb6cc;font-weight:700;font-size:11px;padding:6px 11px;border-radius:8px;cursor:pointer}.copy svg{width:13px;height:13px}
+  .timeline{display:flex;flex-direction:column;margin-top:2px}
+  .tl{display:flex;gap:11px;padding-bottom:14px;position:relative}.tl::before{content:"";position:absolute;left:6px;top:15px;bottom:-2px;width:2px;background:#1d2640}.tl:last-child::before{display:none}
+  .tl .pt{width:14px;height:14px;border-radius:50%;flex:0 0 14px;margin-top:1px;border:2px solid #0e1322;z-index:1}.tl .ti{font-size:12px;font-weight:600;color:#e9edf6}.tl .td{font-size:10.5px;color:var(--muted);margin-top:1px}
+  .mactions{display:flex;gap:8px;margin-top:16px}.mactions button{flex:1;border:none;border-radius:10px;padding:10px;font-weight:700;font-size:12px;cursor:pointer}.ma-primary{background:#6366f1;color:#fff}.ma-ghost{background:#0d1322;border:1px solid var(--line);color:#cdd5ea}
+  .clk{cursor:pointer;transition:.12s}.kpi.clk:hover{border-color:#2c3858}tr.clk:hover td{background:#111829}
+  @media(max-width:1150px){.kpis{grid-template-columns:repeat(3,1fr)}.g-2-1,.g-2{grid-template-columns:1fr}.biz{grid-template-columns:1fr}.snap{grid-template-columns:repeat(2,1fr)}.sidebar{display:none}}
 </style>
 </head>
-<body class="starter">
+<body>
 <div class="app">
   <aside class="sidebar">
-    <div class="brand">
-      <div class="logo" id="brandLogo"></div>
-      <div class="name">PRESTIGE<span>INQUIRY</span></div>
-    </div>
+    <div class="brand"><div class="logo" id="brandLogo"></div><div class="name">PRESTIGE<span>INQUIRY</span></div></div>
     <nav class="nav" id="nav"></nav>
     <div class="side-foot">
-      <div class="userbox">
-        <div class="avatar">AR</div>
-        <div><div class="u-name">Austin R.</div><div class="u-role" id="roleLabel">Business Owner</div></div>
-      </div>
+      <div class="userbox"><div class="avatar">MR</div><div><div class="u-name">Marcus Reyes</div><div class="u-role">Agency Principal</div></div></div>
       <button class="btn-support" id="supportBtn"></button>
     </div>
   </aside>
-
   <main class="main">
     <div class="topbar">
-      <div class="greeting"><h1>Good morning, Austin</h1><p>Here's what's happening with Buckeye Roofing today.</p></div>
+      <div class="greeting"><h1>Good morning, Marcus</h1><p>Summit Financial Group — book of business analyzed &amp; monitored.</p></div>
       <div class="spacer"></div>
-      <div class="pill" id="datePill">May 12 – May 19, 2025</div>
-      <div class="pill" id="filterPill">Filters</div>
-      <div class="iconbtn" id="bellBtn"><span class="dot" id="bellDot">3</span></div>
-      <div class="planpick">
-        <div class="co">Buckeye Roofing<span>Columbus, OH</span></div>
-        <button class="planbadge" id="planBadge" onclick="cycleTier()"></button>
-      </div>
-    </div>
-    <div class="segwrap">
-      <div class="seg" id="seg">
-        <button data-t="starter" class="active">Starter</button>
-        <button data-t="growth">Growth</button>
-        <button data-t="premium">Premium</button>
-      </div>
-      <span class="segnote">All three plan views — click to switch. Buttons are clickable.</span>
+      <div class="pill" id="datePill">This Quarter</div>
+      <div class="iconbtn" id="bellBtn"><span class="dot" id="bellDot">5</span></div>
+      <button class="upload" id="uploadBtn"></button>
+      <div class="agency"><div class="co">Summit Financial<span>Phoenix, AZ</span></div></div>
     </div>
 
     <div class="kpis" id="kpis"></div>
 
+    <div class="panel" style="margin-bottom:13px">
+      <div class="head"><h3 id="bizTitle"></h3><span class="live"><span class="pulse"></span>ANALYZED</span></div>
+      <div class="biz">
+        <div>
+          <div class="stats">
+            <div><div class="n" id="bizClients">4,212</div><div class="l">Clients analyzed</div></div>
+            <div><div class="n" id="bizOpps">1,318</div><div class="l">Opportunities found</div></div>
+            <div><div class="n gold" id="bizRev">$1.84M</div><div class="l">Revenue identified</div></div>
+          </div>
+          <div class="barlist">
+            <div class="row"><span class="lab">Term Conversions</span><span class="track"><span class="fill" style="width:100%;background:linear-gradient(90deg,#6366f1,#8b5cf6)"></span></span><span class="v">$682k</span></div>
+            <div class="row"><span class="lab">Annuity Opportunities</span><span class="track"><span class="fill" style="width:67%;background:linear-gradient(90deg,#c9a85a,#e6cd8f)"></span></span><span class="v">$456k</span></div>
+            <div class="row"><span class="lab">Cross-Sell (DI / LTC / FE)</span><span class="track"><span class="fill" style="width:46%;background:linear-gradient(90deg,#06b6d4,#3b82f6)"></span></span><span class="v">$312k</span></div>
+            <div class="row"><span class="lab">Policy Reviews (12mo+)</span><span class="track"><span class="fill" style="width:29%;background:linear-gradient(90deg,#22c55e,#10b981)"></span></span><span class="v">$198k</span></div>
+            <div class="row"><span class="lab">Lapsed Clients</span><span class="track"><span class="fill" style="width:16%;background:linear-gradient(90deg,#f59e0b,#ef4444)"></span></span><span class="v">$112k</span></div>
+            <div class="row"><span class="lab">Dormant Leads</span><span class="track"><span class="fill" style="width:12%;background:linear-gradient(90deg,#64748b,#94a3b8)"></span></span><span class="v">$84k</span></div>
+          </div>
+          <div class="bizactions"><button class="b-gold" id="uploadBtn2"></button><button class="b-ghost" id="rerunBtn">Re-run analysis</button></div>
+        </div>
+        <div class="donutwrap" style="height:230px"><canvas id="mixChart"></canvas><div class="donutc"><div class="n gold" style="color:var(--gold)">$1.84M</div><div class="l">Identified</div></div></div>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-bottom:13px">
+      <div class="head"><h3 id="oppTitle"></h3>
+        <div style="display:flex;gap:10px;align-items:center">
+          <div class="searchbar"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg><input id="oppSearch" placeholder="Search clients…"/></div>
+          <span class="sel" style="font-size:11px;color:var(--muted);background:#0d1322;border:1px solid var(--line);border-radius:8px;padding:5px 10px">Sorted by priority</span>
+        </div>
+      </div>
+      <table id="oppTable"><thead><tr><th>Client</th><th>Opportunity Type</th><th>Est. Revenue</th><th>Priority</th><th>Last Contact</th><th>Recommended Action</th></tr></thead><tbody id="oppBody"></tbody></table>
+    </div>
+
     <div class="grid g-2-1">
       <div class="panel">
-        <div class="head">
-          <div><h3 id="revTitle"></h3><div class="bignum" id="revTotal"></div></div>
-          <div class="sel">This Month</div>
-        </div>
-        <canvas id="revChart" height="120"></canvas>
+        <div class="head"><div><h3 id="fcTitle"></h3><div class="bignum">$312,400 <small>↑ 38% recovered this quarter</small></div></div><div class="sel">Next 90 days</div></div>
+        <canvas id="fcChart" height="120"></canvas>
       </div>
       <div class="panel">
-        <div class="head"><h3 id="estTitle"></h3><span class="viewall">View All</span></div>
-        <div class="donutwrap" style="height:150px"><canvas id="estChart"></canvas><div class="donutc"><div class="n" id="estTotal">34</div><div class="l">Total</div></div></div>
-        <div class="legend" style="margin-top:10px">
-          <div class="row"><span class="dot" style="background:#3b82f6"></span>New<span class="val">8 · 24%</span></div>
-          <div class="row"><span class="dot" style="background:#22c55e"></span>Contacted<span class="val">10 · 29%</span></div>
-          <div class="row"><span class="dot" style="background:#8b5cf6"></span>Follow-Up<span class="val">9 · 26%</span></div>
-          <div class="row"><span class="dot" style="background:#f59e0b"></span>Waiting Reply<span class="val">5 · 15%</span></div>
-          <div class="row"><span class="dot" style="background:#ec4899"></span>Won<span class="val">2 · 6%</span></div>
-        </div>
+        <div class="head"><h3 id="feedTitle"></h3><span class="live"><span class="pulse"></span>LIVE</span></div>
+        <div class="feed" id="feed"></div>
       </div>
     </div>
 
-    <div class="grid g-3 growth-only">
+    <div class="grid g-2-1">
       <div class="panel">
-        <div class="head"><h3 id="leakTitle"></h3><span class="sel">All Territories</span></div>
-        <div class="leakmap" id="leakmap"></div>
-        <div style="display:flex;gap:14px;margin-top:10px;font-size:10.5px;color:var(--muted)">
-          <span><span style="color:#fb7185">●</span> High $10k+</span><span><span style="color:#f59e0b">●</span> Med $2–10k</span>
-          <span><span style="color:#3b82f6">●</span> Low $500–2k</span><span><span style="color:#22c55e">●</span> Minimal &lt;$500</span>
-        </div>
-      </div>
-      <div class="panel">
-        <div class="head"><h3 id="srcTitle"></h3><span class="sel">This Month</span></div>
-        <div class="donutwrap" style="height:140px"><canvas id="srcChart"></canvas><div class="donutc"><div class="n">$29.5k</div><div class="l">Recovered</div></div></div>
-        <div class="legend" style="margin-top:10px">
-          <div class="row"><span class="dot" style="background:#3b82f6"></span>Google Local Services<span class="val">$11,240 · 38%</span></div>
-          <div class="row"><span class="dot" style="background:#8b5cf6"></span>Google Ads<span class="val">$7,650 · 26%</span></div>
-          <div class="row"><span class="dot" style="background:#06b6d4"></span>Facebook Ads<span class="val">$5,120 · 17%</span></div>
-          <div class="row"><span class="dot" style="background:#22c55e"></span>Referral<span class="val">$3,280 · 11%</span></div>
-          <div class="row"><span class="dot" style="background:#f59e0b"></span>Website Organic<span class="val">$1,600 · 5%</span></div>
-        </div>
-      </div>
-      <div class="panel">
-        <div class="head"><h3 id="vaultTitle"></h3><span class="viewall">View Vault</span></div>
-        <div style="display:flex;gap:18px;align-items:center;margin-bottom:14px">
-          <div><div class="bignum">612</div><div class="sub">Total Old Leads</div></div>
-          <div><div class="bignum" style="color:#4ade80">44</div><div class="sub">Reactivated</div></div>
-          <div><div class="bignum" style="color:#4ade80">7.2%</div><div class="sub">React. Rate</div></div>
-        </div>
-        <div class="sub" style="margin-bottom:8px;color:var(--muted2)">Top Reactivation Opportunities</div>
-        <div class="barlist">
-          <div class="row"><span class="lab">Roof Replacement</span><span class="track"><span class="fill" style="width:100%"></span></span><span class="v">198</span></div>
-          <div class="row"><span class="lab">Storm Damage</span><span class="track"><span class="fill" style="width:74%"></span></span><span class="v">146</span></div>
-          <div class="row"><span class="lab">Roof Repair</span><span class="track"><span class="fill" style="width:57%"></span></span><span class="v">112</span></div>
-          <div class="row"><span class="lab">Gutters</span><span class="track"><span class="fill" style="width:43%"></span></span><span class="v">86</span></div>
-          <div class="row"><span class="lab">Siding</span><span class="track"><span class="fill" style="width:35%"></span></span><span class="v">70</span></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="grid g-2">
-      <div class="panel">
-        <div class="head"><h3 id="hotTitle"></h3><span class="viewall">View All</span></div>
-        <table><thead><tr><th>Lead</th><th>Service</th><th>Last Contact</th><th>Est. Value</th><th>Score</th><th></th></tr></thead><tbody>
-          <tr><td><div class="lead"><span class="lavatar" style="background:linear-gradient(135deg,#3b82f6,#6366f1)">SJ</span>Sarah Johnson</div></td><td>Storm Damage</td><td>15 mins ago</td><td>$12,300</td><td><span class="score" style="background:#16a34a">98</span></td><td><button class="respond">Respond</button></td></tr>
-          <tr><td><div class="lead"><span class="lavatar" style="background:linear-gradient(135deg,#06b6d4,#3b82f6)">MD</span>Mike DeCarlos</div></td><td>Roof Replacement</td><td>32 mins ago</td><td>$18,500</td><td><span class="score" style="background:#16a34a">96</span></td><td><button class="respond">Respond</button></td></tr>
-          <tr><td><div class="lead"><span class="lavatar" style="background:linear-gradient(135deg,#8b5cf6,#ec4899)">JM</span>Jessica Martinez</div></td><td>Gutters</td><td>1 hour ago</td><td>$3,250</td><td><span class="score" style="background:#22c55e">92</span></td><td><button class="respond">Respond</button></td></tr>
-          <tr><td><div class="lead"><span class="lavatar" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">DW</span>David Wilson</div></td><td>Siding</td><td>2 hours ago</td><td>$8,000</td><td><span class="score" style="background:#65a30d">90</span></td><td><button class="respond">Respond</button></td></tr>
-          <tr><td><div class="lead"><span class="lavatar" style="background:linear-gradient(135deg,#ec4899,#f43f5e)">AL</span>Amanda Lee</div></td><td>Roof Repair</td><td>3 hours ago</td><td>$2,150</td><td><span class="score" style="background:#ca8a04">84</span></td><td><button class="respond">Respond</button></td></tr>
-        </tbody></table>
-      </div>
-      <div class="panel">
-        <div class="head"><h3 id="mcTitle"></h3><span class="viewall">View All</span></div>
-        <table><thead><tr><th>Caller</th><th>Location</th><th>Time</th><th>Service</th><th>Est.</th><th></th></tr></thead><tbody>
-          <tr><td>(512) 555-0187</td><td>Austin, TX</td><td>12 mins</td><td>Storm Damage</td><td>$18,500</td><td><button class="callbtn">Call Back</button></td></tr>
-          <tr><td>(512) 555-0142</td><td>Pflugerville</td><td>17 mins</td><td>Roof Replace</td><td>$15,250</td><td><button class="callbtn">Call Back</button></td></tr>
-          <tr><td>(512) 555-0091</td><td>Round Rock</td><td>31 mins</td><td>Gutters</td><td>$8,200</td><td><button class="callbtn">Call Back</button></td></tr>
-          <tr><td>(512) 555-0076</td><td>Cedar Park</td><td>1 hour</td><td>Siding</td><td>$9,600</td><td><button class="callbtn">Call Back</button></td></tr>
-          <tr><td>(512) 555-0044</td><td>Leander, TX</td><td>2 hours</td><td>Roof Repair</td><td>$4,200</td><td><button class="callbtn">Call Back</button></td></tr>
-        </tbody></table>
-      </div>
-    </div>
-
-    <div class="grid g-2">
-      <div class="panel growth-only">
-        <div class="head"><h3 id="rescueTitle"></h3><span class="viewall">View All</span></div>
-        <table><thead><tr><th>Customer</th><th>Project</th><th>Status</th><th>Est. Value</th><th>Days Idle</th><th></th></tr></thead><tbody>
-          <tr><td>Robert Thompson</td><td>Roof Replacement</td><td><span class="badge2 b-sent">Sent</span></td><td>$14,250</td><td>5</td><td><button class="followbtn">Follow Up</button></td></tr>
-          <tr><td>Kevin Brown</td><td>Storm Damage</td><td><span class="badge2 b-pend">Viewed</span></td><td>$9,800</td><td>4</td><td><button class="followbtn">Follow Up</button></td></tr>
-          <tr><td>Brian Taylor</td><td>Gutters</td><td><span class="badge2 b-sent">Sent</span></td><td>$7,400</td><td>7</td><td><button class="followbtn">Follow Up</button></td></tr>
-          <tr><td>Chris Anderson</td><td>Siding</td><td><span class="badge2 b-pend">Viewed</span></td><td>$6,150</td><td>6</td><td><button class="followbtn">Follow Up</button></td></tr>
-          <tr><td>Jennifer White</td><td>Roof Repair</td><td><span class="badge2 b-sent">Sent</span></td><td>$3,950</td><td>3</td><td><button class="followbtn">Follow Up</button></td></tr>
-        </tbody></table>
-      </div>
-      <div class="panel">
-        <div class="head"><h3 id="weekTitle"></h3><span class="sel">This Week</span></div>
-        <canvas id="weekChart" height="150"></canvas>
-        <div class="legend" style="flex-direction:row;gap:16px;margin-top:10px">
-          <div class="row"><span class="dot" style="background:#8b5cf6"></span>Conversations</div>
-          <div class="row"><span class="dot" style="background:#3b82f6"></span>Replies</div>
-          <div class="row"><span class="dot" style="background:#22c55e"></span>Jobs Won</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="grid g-2-1 premium-only">
-      <div class="panel">
-        <div class="head"><h3 id="repTitle"></h3><span class="sel">This Month</span></div>
-        <table><thead><tr><th>Rep</th><th>Conversations</th><th>Replies</th><th>Est. Sent</th><th>Jobs Won</th><th>Revenue</th></tr></thead><tbody>
-          <tr><td><div class="lead"><span class="lavatar" style="background:linear-gradient(135deg,#f59e0b,#ec4899)">AR</span>Austin R.</div></td><td>128</td><td>42</td><td>18</td><td>6</td><td>$18,750</td></tr>
-          <tr><td><div class="lead"><span class="lavatar" style="background:linear-gradient(135deg,#8b5cf6,#6366f1)">MS</span>Megan S.</div></td><td>96</td><td>31</td><td>13</td><td>4</td><td>$12,300</td></tr>
-          <tr><td><div class="lead"><span class="lavatar" style="background:linear-gradient(135deg,#06b6d4,#3b82f6)">TG</span>Tyler G.</div></td><td>82</td><td>27</td><td>9</td><td>2</td><td>$6,800</td></tr>
-          <tr><td><div class="lead"><span class="lavatar" style="background:linear-gradient(135deg,#22c55e,#10b981)">CD</span>Chris D.</div></td><td>74</td><td>21</td><td>8</td><td>1</td><td>$4,950</td></tr>
+        <div class="head"><h3 id="repTitle"></h3><span class="sel">This Quarter</span></div>
+        <table id="repTable"><thead><tr><th>Producer</th><th>Opportunities</th><th>Reviews Booked</th><th>Placed</th><th>Premium Recovered</th></tr></thead><tbody>
+          <tr><td><div class="client"><span class="cav" style="background:linear-gradient(135deg,#475080,#6366f1)">MR</span>Marcus R.</div></td><td>142</td><td>38</td><td>22</td><td>$94,200</td></tr>
+          <tr><td><div class="client"><span class="cav" style="background:linear-gradient(135deg,#8b5cf6,#6366f1)">MS</span>Megan S.</div></td><td>96</td><td>27</td><td>15</td><td>$61,400</td></tr>
+          <tr><td><div class="client"><span class="cav" style="background:linear-gradient(135deg,#06b6d4,#3b82f6)">TG</span>Tyler G.</div></td><td>82</td><td>19</td><td>9</td><td>$42,100</td></tr>
+          <tr><td><div class="client"><span class="cav" style="background:linear-gradient(135deg,#22c55e,#10b981)">CD</span>Chris D.</div></td><td>74</td><td>14</td><td>6</td><td>$28,300</td></tr>
         </tbody></table>
       </div>
       <div class="coach">
         <h3 id="coachTitle"></h3>
-        <div class="tip" style="margin-top:8px">You have <b>14 high-intent leads</b> that haven't replied. Best times to contact them:</div>
-        <div><span class="time">Today 11am – 1pm</span><span class="time">Tomorrow 4pm – 6pm</span></div>
-        <div class="tip"><b>Coach Tip:</b> Leads that receive a text back within 5 minutes are <b>3.6× more likely</b> to convert.</div>
+        <div class="tip">Your book has <b>$1.84M</b> in untapped revenue. Start with the <b>38 annuity opportunities</b> — they average <b>$12k each</b>. Best contact window: weekday mornings, 9–11am.</div>
         <div class="opp">
-          <div class="row">Follow ups <b>38</b><span class="up">↑12%</span></div>
-          <div class="row">Reply rate <b>28%</b><span class="up">↑8%</span></div>
-          <div class="row">Est. Revenue <b>$26,140</b><span class="up">↑22%</span></div>
+          <div class="row">Term conversions closing &lt;30d <b>14</b><span class="up">act now</span></div>
+          <div class="row">Annuity reviews due <b>38</b><span class="up">$456k</span></div>
+          <div class="row">Reviews overdue 12mo+ <b>87</b><span class="up">$198k</span></div>
         </div>
         <button class="runbtn" id="runBtn"></button>
       </div>
@@ -360,10 +241,9 @@
 
     <div class="snap" id="snap"></div>
 
-    <div class="footer">
-      <span class="live">Data updated just now</span>
-      <span id="planFoot">Prestige Inquiry Starter Plan</span>
-      <span>© 2025 Prestige Inquiry. All rights reserved.</span>
+    <div style="margin-top:18px;display:flex;justify-content:space-between;color:var(--muted2);font-size:11px">
+      <span><span style="color:#22c55e">●</span> Book synced 2 minutes ago</span>
+      <span>Prestige Inquiry — AI Revenue Recovery Platform</span>
     </div>
   </main>
 </div>
@@ -371,285 +251,258 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const I = {
+const I={
   grid:'<rect x="3" y="3" width="7" height="7" rx="1.4"/><rect x="14" y="3" width="7" height="7" rx="1.4"/><rect x="14" y="14" width="7" height="7" rx="1.4"/><rect x="3" y="14" width="7" height="7" rx="1.4"/>',
-  bolt:'<path d="M13 2 4 14h7l-1 8 10-13h-7z"/>',
-  layout:'<rect x="3" y="3" width="18" height="18" rx="2.2"/><path d="M3 9h18M9 9v12"/>',
+  gem:'<path d="M6 3h12l3 5-9 13L3 8z"/><path d="M3 8h18M9 3 7 8l5 13 5-13-2-5"/>',
+  database:'<ellipse cx="12" cy="5.5" rx="8" ry="3"/><path d="M4 5.5v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/><path d="M4 11.5v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/>',
   users:'<circle cx="9" cy="8" r="3.2"/><path d="M3.5 20c0-3.2 2.8-5 5.5-5s5.5 1.8 5.5 5"/><path d="M16 6a3.2 3.2 0 0 1 0 6"/><path d="M20.5 20c0-2-1-3.4-2.8-4.2"/>',
   columns:'<rect x="3.5" y="4" width="4" height="16" rx="1.2"/><rect x="10" y="4" width="4" height="16" rx="1.2"/><rect x="16.5" y="4" width="4" height="16" rx="1.2"/>',
+  clipboard:'<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v1M9 11h6M9 15h4"/>',
   message:'<path d="M4 5h16a1.4 1.4 0 0 1 1.4 1.4v8.2A1.4 1.4 0 0 1 20 16H9l-4 4v-4H4a1.4 1.4 0 0 1-1.4-1.4V6.4A1.4 1.4 0 0 1 4 5Z"/>',
-  phone:'<path d="M5 4h3l1.6 4.2-2.2 1.4a12 12 0 0 0 5 5l1.4-2.2L19 18v3a1.6 1.6 0 0 1-1.7 1.6A16.5 16.5 0 0 1 2.4 6.7 1.6 1.6 0 0 1 4 5Z"/>',
-  file:'<path d="M6.5 3h7L19 8.5V20a1 1 0 0 1-1 1H6.5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/><path d="M13 3v6h6"/><path d="M9 13h6M9 17h4"/>',
-  archive:'<rect x="3" y="4" width="18" height="4.2" rx="1.2"/><path d="M5 8.2V19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8.2"/><path d="M10 12h4"/>',
   megaphone:'<path d="M4 10v4a1 1 0 0 0 1 1h2l4 4V5L7 9H5a1 1 0 0 0-1 1Z"/><path d="M11 5l8-3v20l-8-3"/>',
-  chart:'<path d="M3 21h18"/><rect x="5" y="11" width="3" height="8" rx="1"/><rect x="11" y="6" width="3" height="13" rx="1"/><rect x="17" y="14" width="3" height="5" rx="1"/>',
-  spark:'<path d="M12 3l1.7 4.3L18 9l-4.3 1.7L12 15l-1.7-4.3L6 9l4.3-1.7z"/><path d="M18.5 14.5l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/>',
+  forecast:'<path d="M3 17l5-5 4 3 8-9"/><path d="M16 6h5v5"/><path d="M3 21h18"/>',
   trend:'<path d="M3 17l6-6 4 4 8-9"/><path d="M16 6h5v5"/>',
   trophy:'<path d="M8 4h8v5a4 4 0 0 1-8 0Z"/><path d="M8 6H5a3 3 0 0 0 3 3M16 6h3a3 3 0 0 1-3 3"/><path d="M12 13v3M9 20h6M10 20a2 2 0 0 1 4 0"/>',
   gear:'<circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.2 5.2l1.8 1.8M17 17l1.8 1.8M18.8 5.2L17 7M7 17l-1.8 1.8"/>',
   card:'<rect x="3" y="5" width="18" height="14" rx="2.2"/><path d="M3 9.5h18M7 15h4"/>',
   bell:'<path d="M6 9a6 6 0 0 1 12 0c0 4.5 1.8 5.6 1.8 5.6H4.2S6 13.5 6 9Z"/><path d="M10 19.5a2 2 0 0 0 4 0"/>',
   calendar:'<rect x="3" y="4.5" width="18" height="16.5" rx="2.2"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/>',
-  filter:'<path d="M4 7h16M4 12h16M4 17h16"/><circle cx="9" cy="7" r="2.1" fill="#0e1426"/><circle cx="15" cy="12" r="2.1" fill="#0e1426"/><circle cx="8" cy="17" r="2.1" fill="#0e1426"/>',
+  upload:'<path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/>',
   dollar:'<path d="M12 2.5v19"/><path d="M16 6.5a3.6 3 0 0 0-3.4-2H10.5a3 3 0 0 0 0 6h3a3 3 0 0 1 0 6h-2.2a3.6 3 0 0 1-3.4-2"/>',
-  brief:'<rect x="3" y="7.5" width="18" height="12.5" rx="2.2"/><path d="M8.5 7.5V6a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v1.5M3 12.5h18"/>',
+  refresh:'<path d="M4 12a8 8 0 0 1 13.7-5.6L20 8M20 4v4h-4"/><path d="M20 12a8 8 0 0 1-13.7 5.6L4 16M4 20v-4h4"/>',
+  spark:'<path d="M12 3l1.7 4.3L18 9l-4.3 1.7L12 15l-1.7-4.3L6 9l4.3-1.7z"/><path d="M18.5 14.5l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/>',
+  activity:'<path d="M3 12h4l3 8 4-16 3 8h4"/>',
+  shield:'<path d="M12 3l7 3v5c0 4.6-3 8-7 10-4-2-7-5.4-7-10V6z"/><path d="M9 12l2 2 4-4"/>',
+  retention:'<path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v4h-4"/><path d="M12 8v4l3 2"/>',
+  copy:'<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h8"/>',
+  phone:'<path d="M5 4h3l1.6 4.2-2.2 1.4a12 12 0 0 0 5 5l1.4-2.2L19 18v3a1.6 1.6 0 0 1-1.7 1.6A16.5 16.5 0 0 1 2.4 6.7 1.6 1.6 0 0 1 4 5Z"/>',
   target:'<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3.8"/><circle cx="12" cy="12" r="1" fill="currentColor"/>',
-  flame:'<path d="M12 3c1 3 4 4 4 8a4 4 0 0 1-8 0c0-1.5.6-2.4 1.2-3 .2 1 .8 1.6 1.4 1.8C9.8 7 11 5 12 3Z"/>',
   check:'<path d="M5 12l4 4 10-11"/>'
 };
-const svg = (n,extra='') => `<svg viewBox="0 0 24 24" ${extra}>${I[n]||''}</svg>`;
+const svg=(n,e='')=>`<svg viewBox="0 0 24 24" ${e}>${I[n]||''}</svg>`;
 
-const NAV = [
+const NAV=[
   {l:'Dashboard',i:'grid',active:1},
-  {l:'Rescue Queue',i:'bolt',badge:'rq',tier:'growth'},
-  {l:'Revenue Leaks',i:'layout',tier:'growth'},
-  {l:'Leads',i:'users'},
+  {l:'Revenue Opportunities',i:'gem',badge:'1,318'},
+  {l:'Book of Business',i:'database'},
+  {l:'Clients',i:'users'},
   {l:'Pipeline',i:'columns'},
-  {l:'Conversations',i:'message',badge:'conv'},
-  {l:'Missed Calls',i:'phone',badge:'mc'},
-  {l:'Estimates',i:'file'},
-  {l:'Old Lead Vault',i:'archive',tier:'growth'},
-  {l:'Campaigns',i:'megaphone',tier:'growth'},
-  {l:'Source ROI',i:'chart',tier:'growth'},
-  {l:'Sales Coach',i:'spark',ai:1,tier:'premium'},
+  {l:'Policy Reviews',i:'clipboard',badge:'87',b:'blue'},
+  {l:'Conversations',i:'message',badge:'23',b:'blue'},
+  {l:'Campaigns',i:'megaphone'},
+  {l:'Forecasting',i:'forecast'},
   {l:'Reports',i:'trend'},
-  {l:'Team Scoreboard',i:'trophy',tier:'premium'},
+  {l:'Producers',i:'trophy'},
   {l:'Settings',i:'gear'},
   {l:'Billing',i:'card'},
 ];
 
-const KPI = {
-  starter:[
-    {l:'Missed Calls Recovered',n:'142',d:'↑ 24%',i:'phone',c:'#60a5fa',bg:'rgba(59,130,246,.16)',g:'rgba(59,130,246,.12)',s:[8,10,9,13,12,15,18,16,20],sc:'#3b82f6'},
-    {l:'Hot Replies',n:'87',d:'↑ 31%',i:'message',c:'#a78bfa',bg:'rgba(139,92,246,.16)',g:'rgba(139,92,246,.12)',s:[5,7,6,9,12,10,14,16,17],sc:'#8b5cf6'},
-    {l:'Estimates in Follow-Up',n:'34',d:'↑ 12%',i:'file',c:'#fbbf24',bg:'rgba(245,158,11,.16)',g:'rgba(245,158,11,.10)',s:[4,5,5,6,7,6,8,9,9],sc:'#f59e0b'},
-    {l:'Jobs Won',n:'9',d:'↑ 29%',i:'trophy',c:'#fb7185',bg:'rgba(244,63,94,.16)',g:'rgba(244,63,94,.10)',s:[1,2,1,3,2,4,3,5,6],sc:'#f43f5e'},
-    {l:'Estimated Revenue Recovered',n:'$47,680',d:'↑ 38%',i:'dollar',c:'#a5b4fc',bg:'rgba(99,102,241,.18)',g:'rgba(99,102,241,.14)',s:[10,14,12,18,22,20,28,32,38],sc:'#6366f1'},
-  ],
-  growth:[
-    {l:'Missed Calls Recovered',n:'128',d:'↑ 24%',i:'phone',c:'#60a5fa',bg:'rgba(59,130,246,.16)',g:'rgba(59,130,246,.12)',s:[8,10,9,13,12,11,14,16,15],sc:'#3b82f6'},
-    {l:'Hot Replies',n:'76',d:'↑ 18%',i:'message',c:'#a78bfa',bg:'rgba(139,92,246,.16)',g:'rgba(139,92,246,.12)',s:[5,7,6,8,9,8,11,12,13],sc:'#8b5cf6'},
-    {l:'Estimates in Follow-Up',n:'29',d:'↑ 9%',i:'file',c:'#fbbf24',bg:'rgba(245,158,11,.16)',g:'rgba(245,158,11,.10)',s:[4,5,5,6,6,7,6,8,9],sc:'#f59e0b'},
-    {l:'Old Leads Reactivated',n:'44',d:'↑ 31%',i:'archive',c:'#4ade80',bg:'rgba(34,197,94,.16)',g:'rgba(34,197,94,.10)',s:[3,5,6,8,10,12,9,13,14],sc:'#22c55e'},
-    {l:'Jobs Won',n:'7',d:'↑ 17%',i:'trophy',c:'#fb7185',bg:'rgba(244,63,94,.16)',g:'rgba(244,63,94,.10)',s:[1,2,1,2,3,2,4,3,5],sc:'#f43f5e'},
-    {l:'Estimated Revenue Recovered',n:'$29,540',d:'↑ 28%',i:'dollar',c:'#a5b4fc',bg:'rgba(99,102,241,.18)',g:'rgba(99,102,241,.14)',s:[10,14,12,18,16,20,24,22,28],sc:'#6366f1'},
-  ],
-  premium:[
-    {l:'Missed Calls Recovered',n:'142',d:'↑ 24%',i:'phone',c:'#60a5fa',bg:'rgba(59,130,246,.16)',g:'rgba(59,130,246,.12)',s:[8,10,9,13,12,15,18,16,20],sc:'#3b82f6'},
-    {l:'Hot Replies',n:'87',d:'↑ 31%',i:'message',c:'#a78bfa',bg:'rgba(139,92,246,.16)',g:'rgba(139,92,246,.12)',s:[5,7,6,9,12,10,14,16,17],sc:'#8b5cf6'},
-    {l:'Estimates in Follow-Up',n:'34',d:'↑ 12%',i:'file',c:'#fbbf24',bg:'rgba(245,158,11,.16)',g:'rgba(245,158,11,.10)',s:[4,5,5,6,7,6,8,9,9],sc:'#f59e0b'},
-    {l:'Old Leads Reactivated',n:'56',d:'↑ 28%',i:'archive',c:'#4ade80',bg:'rgba(34,197,94,.16)',g:'rgba(34,197,94,.10)',s:[4,6,7,9,11,13,12,15,17],sc:'#22c55e'},
-    {l:'Jobs Won',n:'9',d:'↑ 29%',i:'trophy',c:'#fb7185',bg:'rgba(244,63,94,.16)',g:'rgba(244,63,94,.10)',s:[1,2,1,3,2,4,3,5,6],sc:'#f43f5e'},
-    {l:'Estimated Revenue Recovered',n:'$47,680',d:'↑ 38%',i:'dollar',c:'#a5b4fc',bg:'rgba(99,102,241,.18)',g:'rgba(99,102,241,.14)',s:[10,14,12,18,22,20,28,32,38],sc:'#6366f1'},
-  ],
-};
-const REV={starter:'$47,680',growth:'$29,540',premium:'$47,680'};
-const REVDATA={starter:[12,18,16,22,26,24,30,28,34,38,33,42,47.6],growth:[10,14,13,18,16,20,19,24,22,26,25,28,29.5],premium:[12,18,16,22,26,24,30,28,34,38,33,42,47.6]};
+const KPI=[
+  {l:'Revenue Opportunities Identified',n:'$1.84M',d:'↑ 22% this quarter',i:'gem',c:'#e7d9b4',bg:'rgba(214,181,106,.16)',gold:1,s:[10,14,12,18,22,20,28,32,38],sc:'#d6b56a'},
+  {l:'Term Conversion Opportunities',n:'142',d:'14 closing <30d',i:'shield',c:'#a78bfa',bg:'rgba(139,92,246,.16)',s:[8,10,9,13,12,15,18,16,20],sc:'#8b5cf6'},
+  {l:'Annuity Opportunities',n:'38',d:'$456k potential',i:'trend',c:'#fbbf24',bg:'rgba(245,158,11,.16)',s:[3,5,6,8,7,9,11,10,12],sc:'#f59e0b'},
+  {l:'Policy Reviews Scheduled',n:'87',d:'↑ 31% vs last qtr',i:'clipboard',c:'#60a5fa',bg:'rgba(59,130,246,.16)',s:[5,7,6,9,12,10,14,16,17],sc:'#3b82f6'},
+  {l:'Premium Revenue Generated',n:'$312K',d:'↑ 38% recovered',i:'dollar',c:'#34d399',bg:'rgba(34,197,94,.16)',s:[6,8,7,11,10,13,12,16,18],sc:'#22c55e'},
+  {l:'Client Retention Rate',n:'94%',d:'↑ 6 pts vs last qtr',i:'retention',c:'#5eead4',bg:'rgba(6,182,212,.16)',s:[88,89,90,91,92,92,93,93,94],sc:'#06b6d4'},
+];
 
-function sparkSVG(arr,col){
-  const w=120,h=34,max=Math.max(...arr),min=Math.min(...arr);
+const TYPECOL={'Term Conversion':['rgba(139,92,246,.16)','#a78bfa'],'Annuity Review':['rgba(245,158,11,.16)','#fbbf24'],'Annuity Rollover':['rgba(245,158,11,.16)','#fbbf24'],'Disability Cross-Sell':['rgba(6,182,212,.16)','#22d3ee'],'LTC Cross-Sell':['rgba(6,182,212,.16)','#22d3ee'],'Final Expense Cross-Sell':['rgba(6,182,212,.16)','#22d3ee'],'Policy Review':['rgba(59,130,246,.16)','#60a5fa'],'Lapsed Client':['rgba(239,68,68,.16)','#fca5a5'],'Dormant Lead':['rgba(100,116,139,.18)','#94a3b8'],'Beneficiary Review':['rgba(34,197,94,.16)','#4ade80']};
+const OPPS=[
+ {name:'James Park',type:'Annuity Rollover',rev:18500,score:96,last:'2 yr ago',action:'Retirement rollover — call now'},
+ {name:'Sarah Jones',type:'Annuity Review',rev:12000,score:95,last:'14 mo ago',action:'Schedule rollover review'},
+ {name:'Maria Gomez',type:'LTC Cross-Sell',rev:5600,score:88,last:'11 mo ago',action:'LTC needs review'},
+ {name:'John Smith',type:'Term Conversion',rev:4800,score:98,last:'8 mo ago',action:'Conversion window closing'},
+ {name:'Linda Davis',type:'Policy Review',rev:3400,score:90,last:'16 mo ago',action:'Schedule annual review'},
+ {name:'Mike Brown',type:'Disability Cross-Sell',rev:2500,score:92,last:'6 mo ago',action:'Send DI offer'},
+ {name:'Robert Lee',type:'Lapsed Client',rev:2100,score:86,last:'20 mo ago',action:'Win-back outreach'},
+ {name:'Kevin White',type:'Dormant Lead',rev:1900,score:82,last:'never',action:'Re-engage with new quote'},
+ {name:'Tom Reed',type:'Final Expense Cross-Sell',rev:1380,score:84,last:'9 mo ago',action:'Send FE offer'},
+ {name:'Emily Clark',type:'Beneficiary Review',rev:1200,score:80,last:'24 mo ago',action:'Confirm beneficiaries'},
+];
+const fmt=n=>'$'+n.toLocaleString();
+function scoreColor(s){return s>=95?'#16a34a':s>=90?'#22c55e':s>=85?'#65a30d':'#ca8a04';}
+function initials(n){return n.split(' ').map(w=>w[0]).join('').slice(0,2);}
+function avColor(n){const c=[['#475080','#6366f1'],['#8b5cf6','#ec4899'],['#06b6d4','#3b82f6'],['#f59e0b','#ef4444'],['#22c55e','#10b981']];return c[n.length%c.length];}
+
+function sparkSVG(arr,col){const w=120,h=32,max=Math.max(...arr),min=Math.min(...arr);
   const pts=arr.map((v,i)=>[i*(w/(arr.length-1)),h-2-((v-min)/(max-min||1))*(h-6)]);
-  const line=pts.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
-  const id='g'+Math.random().toString(36).slice(2,7);
-  return `<svg class="spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" style="stroke:none"><defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${col}" stop-opacity=".30"/><stop offset="1" stop-color="${col}" stop-opacity="0"/></linearGradient></defs><polygon points="0,${h} ${line} ${w},${h}" fill="url(#${id})"/><polyline points="${line}" fill="none" stroke="${col}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-}
+  const line=pts.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');const id='g'+Math.random().toString(36).slice(2,7);
+  return `<svg class="spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" style="stroke:none"><defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${col}" stop-opacity=".28"/><stop offset="1" stop-color="${col}" stop-opacity="0"/></linearGradient></defs><polygon points="0,${h} ${line} ${w},${h}" fill="url(#${id})"/><polyline points="${line}" fill="none" stroke="${col}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;}
 
-let tier='starter',revChart,estChart,weekChart,srcChart;
-const tiers=['starter','growth','premium'];
-const BADGE={rq:{starter:'9',growth:'9',premium:'14'},conv:{starter:'12',growth:'18',premium:'23'},mc:{starter:'9',growth:'7',premium:'9'}};
-
-function renderNav(){
-  const el=document.getElementById('nav');el.innerHTML='';
-  NAV.forEach(it=>{
-    if(it.tier==='growth'&&tier==='starter')return;
-    if(it.tier==='premium'&&tier!=='premium')return;
-    const a=document.createElement('a');if(it.active)a.className='active';
-    let extra='';
-    if(it.badge)extra=`<span class="badge ${it.badge==='conv'?'blue':''}">${BADGE[it.badge][tier]}</span>`;
-    if(it.ai)extra='<span class="ai">AI</span>';
-    a.innerHTML=`<span class="ic">${svg(it.i)}</span>${it.l}${extra}`;
-    el.appendChild(a);
-  });
-}
-function renderKPIs(){
-  const el=document.getElementById('kpis');el.innerHTML='';
-  KPI[tier].forEach(k=>{
-    const d=document.createElement('div');d.className='kpi clk';d.dataset.k=k.l;d.style.setProperty('--glow',k.g);
-    d.innerHTML=`<div class="top"><span class="ico" style="background:${k.bg};color:${k.c}">${svg(k.i)}</span>${k.l}</div><div class="num">${k.n}</div><div class="delta">${k.d}</div>${sparkSVG(k.s,k.sc)}`;
-    el.appendChild(d);
-  });
-}
-function renderSnap(){
-  const el=document.getElementById('snap');
+function renderNav(){const el=document.getElementById('nav');el.innerHTML='';
+  NAV.forEach(it=>{const a=document.createElement('a');if(it.active)a.className='active';
+    const ex=it.badge?`<span class="badge ${it.b==='blue'?'blue':''}">${it.badge}</span>`:'';
+    a.innerHTML=`<span class="ic">${svg(it.i)}</span>${it.l}${ex}`;el.appendChild(a);});}
+function renderKPIs(){const el=document.getElementById('kpis');el.innerHTML='';
+  KPI.forEach(k=>{const d=document.createElement('div');d.className='kpi clk'+(k.gold?' gold':'');d.dataset.k=k.l;
+    d.innerHTML=`<div class="top"><span class="ico" style="background:${k.bg};color:${k.c}">${svg(k.i)}</span>${k.l}</div><div class="num">${k.n}</div><div class="delta">${k.d}</div>${sparkSVG(k.s,k.sc)}`;el.appendChild(d);});}
+function renderOpps(){const b=document.getElementById('oppBody');
+  b.innerHTML=OPPS.map(o=>{const tc=TYPECOL[o.type]||['rgba(99,102,241,.16)','#a5b4fc'];const av=avColor(o.name);
+    return `<tr class="clk"><td><div class="client"><span class="cav" style="background:linear-gradient(135deg,${av[0]},${av[1]})">${initials(o.name)}</span>${o.name}</div></td>
+     <td><span class="otype" style="background:${tc[0]};color:${tc[1]}">${o.type}</span></td>
+     <td class="rev">${fmt(o.rev)}</td>
+     <td><span class="score" style="background:${scoreColor(o.score)}">${o.score}</span></td>
+     <td style="color:var(--muted)">${o.last}</td>
+     <td><button class="actbtn">${svg('spark')}Generate outreach</button></td></tr>`;}).join('');}
+function renderSnap(){const el=document.getElementById('snap');
   const rows=[
-    {l:'Recovered Revenue',n:REV[tier],d:'↑ 38% vs last month',i:'dollar',c:'#a5b4fc',bg:'rgba(99,102,241,.16)'},
-    {l:'Average Job Value',n:'$5,298',d:'↑ 14% vs last month',i:'brief',c:'#60a5fa',bg:'rgba(59,130,246,.16)'},
-    {l:'Jobs Won',n:tier==='growth'?'7':'9',d:'↑ 29% vs last month',i:'trophy',c:'#4ade80',bg:'rgba(34,197,94,.16)'},
-    {l:'Close Rate',n:'26%',d:'↑ 8% vs last month',i:'target',c:'#fbbf24',bg:'rgba(245,158,11,.16)'},
+    {l:'Revenue Opportunities',n:'$1.84M',d:'identified in your book',i:'gem',c:'#e7d9b4',bg:'rgba(214,181,106,.16)'},
+    {l:'Premium Generated',n:'$312K',d:'↑ 38% this quarter',i:'dollar',c:'#4ade80',bg:'rgba(34,197,94,.16)'},
+    {l:'Policies Placed',n:'86',d:'↑ 29% this quarter',i:'shield',c:'#60a5fa',bg:'rgba(59,130,246,.16)'},
+    {l:'Client Retention',n:'94%',d:'↑ 6 pts vs last qtr',i:'retention',c:'#5eead4',bg:'rgba(6,182,212,.16)'},
   ];
-  el.innerHTML=rows.map(r=>`<div class="card2"><div class="ico" style="background:${r.bg};color:${r.c}">${svg(r.i)}</div><div><div class="l">${r.l}</div><div class="n">${r.n}</div><div class="d">${r.d}</div></div></div>`).join('');
-}
-function buildLeakMap(){
-  const m=document.getElementById('leakmap');if(!m)return;m.innerHTML='';
-  const dots=[[30,42,16,'#fb7185'],[44,55,26,'#fb7185'],[58,40,13,'#f59e0b'],[68,60,20,'#fb7185'],[50,30,11,'#3b82f6'],[38,68,15,'#f59e0b'],[75,45,11,'#3b82f6'],[22,55,9,'#22c55e'],[62,72,13,'#f59e0b'],[82,62,16,'#fb7185'],[48,48,8,'#22c55e']];
-  dots.forEach(([x,y,s,c])=>{const dot=document.createElement('div');dot.className='leakdot';dot.style.cssText=`left:${x}%;top:${y}%;width:${s}px;height:${s}px;background:${c};box-shadow:0 0 ${s*0.9}px ${c}99`;m.appendChild(dot);});
-  const t=document.createElement('div');t.className='total';t.innerHTML='Total Leak Potential<b>$26,780</b>';m.appendChild(t);
-}
+  el.innerHTML=rows.map(r=>`<div class="card2"><div class="ico" style="background:${r.bg};color:${r.c}">${svg(r.i)}</div><div><div class="l">${r.l}</div><div class="n">${r.n}</div><div class="d">${r.d}</div></div></div>`).join('');}
 function titles(){
-  document.getElementById('revTitle').innerHTML=svg('trend')+'Recovered Revenue Trend';
-  document.getElementById('revTotal').innerHTML=REV[tier]+' <small>↑ 38% vs Apr 12 – May 11</small>';
-  document.getElementById('estTitle').innerHTML=svg('file')+'Estimate Follow-Up';
-  document.getElementById('leakTitle').innerHTML=svg('layout')+'Revenue Leak Map';
-  document.getElementById('srcTitle').innerHTML=svg('chart')+'Lead Source ROI';
-  document.getElementById('vaultTitle').innerHTML=svg('archive')+'Old Lead Vault';
-  document.getElementById('hotTitle').innerHTML=svg('flame')+'Hot Leads Needing Action';
-  document.getElementById('mcTitle').innerHTML=svg('phone')+'Recent Missed Calls';
-  document.getElementById('rescueTitle').innerHTML=svg('file')+'Estimate Rescue Center';
-  document.getElementById('weekTitle').innerHTML=svg('chart')+'Weekly Activity';
-  document.getElementById('repTitle').innerHTML=svg('trophy')+'Rep Scoreboard';
-  document.getElementById('coachTitle').innerHTML=svg('spark')+'AI Sales Coach <span class="tag">New Insights</span>';
-}
-
-function makeCharts(){
-  const grid={color:'#161d31'},tickc='#5e6783';
-  if(revChart)revChart.destroy();
-  revChart=new Chart(document.getElementById('revChart'),{type:'line',
-    data:{labels:['May 7','','','May 10','','','May 13','','','May 16','','','May 19'],
-      datasets:[{data:REVDATA[tier],borderColor:'#8b5cf6',borderWidth:2.4,tension:.4,fill:true,pointRadius:0,
-        backgroundColor:c=>{const g=c.chart.ctx.createLinearGradient(0,0,0,220);g.addColorStop(0,'rgba(139,92,246,.32)');g.addColorStop(1,'rgba(139,92,246,0)');return g;}}]},
-    options:{plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:tickc,font:{size:10}}},y:{grid,ticks:{color:tickc,font:{size:10},callback:v=>'$'+v+'k'}}}}});
-  if(estChart)estChart.destroy();
-  estChart=new Chart(document.getElementById('estChart'),{type:'doughnut',data:{labels:['New','Contacted','Follow-Up','Waiting','Won'],datasets:[{data:[8,10,9,5,2],backgroundColor:['#3b82f6','#22c55e','#8b5cf6','#f59e0b','#ec4899'],borderWidth:0,cutout:'72%'}]},options:{plugins:{legend:{display:false}}}});
-  if(weekChart)weekChart.destroy();
-  weekChart=new Chart(document.getElementById('weekChart'),{type:'bar',data:{labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
-    datasets:[{type:'line',label:'Jobs Won',data:[2,3,5,4,6,3,2],borderColor:'#22c55e',borderWidth:2,tension:.4,pointRadius:3,pointBackgroundColor:'#22c55e'},
-      {label:'Conversations',data:[40,55,75,60,80,45,30],backgroundColor:'#8b5cf6',borderRadius:5,barPercentage:.55},
-      {label:'Replies',data:[20,30,42,35,48,22,15],backgroundColor:'#3b82f6',borderRadius:5,barPercentage:.55}]},
-    options:{plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:tickc,font:{size:10}}},y:{grid,ticks:{color:tickc,font:{size:10}}}}}});
-  const sc=document.getElementById('srcChart');
-  if(sc){if(srcChart)srcChart.destroy();srcChart=new Chart(sc,{type:'doughnut',data:{labels:['GLS','Google','FB','Referral','Organic','Other'],datasets:[{data:[38,26,17,11,5,3],backgroundColor:['#3b82f6','#8b5cf6','#06b6d4','#22c55e','#f59e0b','#64748b'],borderWidth:0,cutout:'70%'}]},options:{plugins:{legend:{display:false}}}});}
-}
-
-function applyTier(){
-  document.body.className=tier;
-  const label=tier.charAt(0).toUpperCase()+tier.slice(1);
-  document.getElementById('brandLogo').innerHTML=svg('flame','width="18" height="18" style="stroke:#fff"');
+  document.getElementById('brandLogo').innerHTML=svg('gem','width="18" height="18"');
   document.getElementById('supportBtn').innerHTML=svg('message')+'Message Support';
-  document.getElementById('datePill').innerHTML=svg('calendar')+'May 12 – May 19, 2025';
-  document.getElementById('filterPill').innerHTML=svg('filter')+'Filters';
-  document.getElementById('bellBtn').innerHTML=svg('bell')+'<span class="dot" id="bellDot">'+(tier==='growth'?'2':'3')+'</span>';
-  const badgeIcon=tier==='starter'?'star':(tier==='growth'?'trend':'spark');
-  document.getElementById('planBadge').innerHTML=svg(badgeIcon==='star'?'spark':badgeIcon)+label;
-  document.getElementById('planFoot').textContent='Prestige Inquiry '+label+' Plan';
-  document.getElementById('roleLabel').textContent=tier==='starter'?'Business Owner':'Success Manager';
-  const rb=document.getElementById('runBtn');if(rb)rb.innerHTML=svg('bolt')+'Run Smart Follow-Up';
-  document.querySelectorAll('#seg button').forEach(b=>b.classList.toggle('active',b.dataset.t===tier));
-  renderNav();renderKPIs();renderSnap();titles();buildLeakMap();makeCharts();
+  document.getElementById('datePill').innerHTML=svg('calendar')+'This Quarter';
+  document.getElementById('bellBtn').innerHTML=svg('bell')+'<span class="dot" id="bellDot">'+(window._bell||5)+'</span>';
+  document.getElementById('uploadBtn').innerHTML=svg('upload')+'Upload Book of Business';
+  document.getElementById('uploadBtn2').innerHTML='Upload new book';
+  document.getElementById('bizTitle').innerHTML=svg('database')+'Book of Business Analysis';
+  document.getElementById('oppTitle').innerHTML=svg('gem')+'Revenue Opportunities';
+  document.getElementById('fcTitle').innerHTML=svg('forecast')+'Premium Recovery Forecast';
+  document.getElementById('feedTitle').innerHTML=svg('activity')+'Live Activity';
+  document.getElementById('repTitle').innerHTML=svg('trophy')+'Producer Scoreboard';
+  document.getElementById('coachTitle').innerHTML=svg('spark')+'AI Revenue Coach <span class="tag">New Insights</span>';
+  document.getElementById('runBtn').innerHTML=svg('spark')+'Generate outreach for top 20';
 }
-function cycleTier(){tier=tiers[(tiers.indexOf(tier)+1)%3];applyTier();}
-applyTier();
+let mixChart,fcChart;
+function makeCharts(){const grid={color:'#141b2c'},tickc='#5d6680';
+  if(mixChart)mixChart.destroy();
+  mixChart=new Chart(document.getElementById('mixChart'),{type:'doughnut',data:{labels:['Term','Annuity','Cross-Sell','Reviews','Lapsed','Dormant'],datasets:[{data:[37,25,17,11,6,4],backgroundColor:['#8b5cf6','#d6b56a','#06b6d4','#22c55e','#f59e0b','#64748b'],borderWidth:0,cutout:'70%'}]},options:{plugins:{legend:{display:false}}}});
+  if(fcChart)fcChart.destroy();
+  fcChart=new Chart(document.getElementById('fcChart'),{type:'bar',data:{labels:['Wk1','Wk2','Wk3','Wk4','Wk5','Wk6','Wk7','Wk8','Wk9','Wk10','Wk11','Wk12'],
+    datasets:[{type:'line',label:'Cumulative',data:[28,52,79,104,132,158,190,214,242,268,292,312],borderColor:'#d6b56a',borderWidth:2.4,tension:.4,pointRadius:0,fill:true,backgroundColor:c=>{const g=c.chart.ctx.createLinearGradient(0,0,0,200);g.addColorStop(0,'rgba(214,181,106,.22)');g.addColorStop(1,'rgba(214,181,106,0)');return g;},yAxisID:'y'},
+      {label:'Weekly',data:[28,24,27,25,28,26,32,24,28,26,24,20],backgroundColor:'#3b4670',borderRadius:4,barPercentage:.6,yAxisID:'y'}]},
+    options:{plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:tickc,font:{size:9}}},y:{grid,ticks:{color:tickc,font:{size:10},callback:v=>'$'+v+'k'}}}}});
+}
 
-function toast(msg){const t=document.getElementById('toast');t.innerHTML=svg('check')+msg;t.classList.add('show');clearTimeout(window._tt);window._tt=setTimeout(()=>t.classList.remove('show'),2200);}
-document.querySelectorAll('.panel table tbody tr').forEach(r=>r.classList.add('clk'));
-
+/* ---- modals + outreach ---- */
 const overlay=document.getElementById('overlay');
-function openModal(html,drawer){const m=overlay.querySelector('.modal');m.className='modal'+(drawer?' drawer':'');m.innerHTML=html;overlay.classList.add('show');}
+function openModal(html){const m=overlay.querySelector('.modal');m.innerHTML=html;overlay.classList.add('show');}
 function closeModal(){overlay.classList.remove('show');}
 function mhead(t,s){return `<div class="mhead"><div><div class="mt">${t}</div><div class="ms">${s}</div></div><button class="mclose" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>`;}
-function bars(title,items){const max=Math.max(...items.map(i=>i[1])),cur=max>1000;
-  return `<div class="sub" style="margin:6px 0 8px;color:var(--muted2)">${title}</div><div class="scoreb">`+items.map(i=>`<div class="r"><span class="lab">${i[0]}</span><span class="track"><span class="fill" style="width:${Math.round(i[1]/max*100)}%;background:linear-gradient(90deg,#6366f1,#8b5cf6)"></span></span><span class="v">${cur?'$'+i[1].toLocaleString():i[1]}</span></div>`).join('')+`</div>`;}
 
-const LEADDATA={
- 'Sarah Johnson':{phone:'(614) 555-0182',src:'Google Local Services',parts:[['Response speed',95,'#22c55e'],['Job value',92,'#3b82f6'],['Intent signals',99,'#ec4899'],['Engagement',88,'#8b5cf6']],thread:[['in','My roof got hit in last night’s storm — shingles all over the yard. Can someone come look?'],['out','So sorry to hear that, Sarah! This is Buckeye Roofing — we can get an inspector out today. What’s the address?'],['in','4212 Maple Ridge Dr. How soon?'],['out','We have a 2pm opening today. Want me to lock it in?'],['in','Yes please!']]},
- 'Mike DeCarlos':{phone:'(614) 555-0114',src:'Google Ads',parts:[['Response speed',90,'#22c55e'],['Job value',98,'#3b82f6'],['Intent signals',95,'#ec4899'],['Engagement',84,'#8b5cf6']],thread:[['in','Looking to fully replace my roof. Got a quote yet?'],['out','Absolutely — happy to get you an exact number. Single or two-story?'],['in','Two-story, about 2,800 sq ft.']]},
- 'Jessica Martinez':{phone:'(614) 555-0167',src:'Facebook Ads',parts:[['Response speed',88,'#22c55e'],['Job value',74,'#3b82f6'],['Intent signals',92,'#ec4899'],['Engagement',90,'#8b5cf6']],thread:[['in','Need new gutters installed. What’s the cost?'],['out','We can size that up fast — want a quick free measure this week?'],['in','Sure, Thursday works.']]},
- 'David Wilson':{phone:'(614) 555-0143',src:'Referral',parts:[['Response speed',80,'#22c55e'],['Job value',86,'#3b82f6'],['Intent signals',88,'#ec4899'],['Engagement',78,'#8b5cf6']],thread:[['in','Neighbor used you for siding — can you quote mine?'],['out','Love a referral! Yes — what color/material are you thinking?']]},
- 'Amanda Lee':{phone:'(614) 555-0198',src:'Website Organic',parts:[['Response speed',82,'#22c55e'],['Job value',70,'#3b82f6'],['Intent signals',84,'#ec4899'],['Engagement',80,'#8b5cf6']],thread:[['in','Got a small leak near the chimney. Repair?'],['out','We can take care of that — want to send a couple photos so we come prepared?']]}
-};
+function outreach(o){const first=o.name.split(' ')[0];const t=o.type;
+  let call,esub,ebody,sms;
+  if(t.includes('Annuity')){
+    call=`Hi ${first}, this is Marcus over at Summit Financial. I was reviewing your accounts and noticed you may be approaching a window where it makes sense to look at your retirement options — there could be a rollover that better protects your principal and locks in guaranteed income. Do you have 15 minutes this week to review it together?`;
+    esub=`A quick review of your retirement options, ${first}`;
+    ebody=`Hi ${first},\n\nWhile reviewing your file I noticed it's a good time to revisit your retirement strategy. Depending on your timeline, there may be a rollover or annuity option that gives you guaranteed income and protects against market downturns.\n\nThere's no obligation — I'd just like to walk you through what's available so you can make an informed decision. Are you free for a brief call this week?\n\nBest,\nMarcus Reyes\nSummit Financial Group`;
+    sms=`Hi ${first}, it's Marcus at Summit Financial. Found a retirement option worth reviewing on your account — guaranteed income + downside protection. Got 15 min this week? Reply YES and I'll call.`;
+  } else if(t.includes('Term Conversion')){
+    call=`Hi ${first}, this is Marcus with Summit Financial. I was reviewing your policy and noticed your term coverage is approaching its conversion window — you may be able to lock in permanent coverage without a new medical exam, but it's time-sensitive. Do you have a few minutes this week to look at it?`;
+    esub=`Important option on your term policy, ${first}`;
+    ebody=`Hi ${first},\n\nWhile reviewing your coverage I noticed your term policy is nearing its conversion deadline. You may be able to convert to permanent coverage — locking in your rate and building cash value — without re-qualifying medically.\n\nThis option expires soon, so I'd like to walk you through it. Are you free for a quick 10-minute call this week?\n\nBest,\nMarcus Reyes\nSummit Financial Group`;
+    sms=`Hi ${first}, it's Marcus at Summit Financial. Heads-up: your term policy has a conversion option closing soon — lock in permanent coverage, no new exam. Worth 10 min? Reply YES.`;
+  } else if(t.includes('Cross-Sell')){
+    const prod=t.replace(' Cross-Sell','');
+    call=`Hi ${first}, this is Marcus at Summit Financial. I was doing a review of your coverage and noticed a gap — you've got great life protection, but there's nothing in place for ${prod.toLowerCase()}. For most people in your situation it's surprisingly affordable, and it covers a real risk. Can I show you a couple options?`;
+    esub=`One gap I noticed in your coverage, ${first}`;
+    ebody=`Hi ${first},\n\nDuring a routine review of your policies I noticed you're well covered on life insurance, but you don't currently have ${prod.toLowerCase()} protection. That's one of the more common gaps we see, and it's usually inexpensive to fix.\n\nI'd like to put together a couple of options for you to consider — no pressure. Do you have a few minutes this week?\n\nBest,\nMarcus Reyes\nSummit Financial Group`;
+    sms=`Hi ${first}, Marcus at Summit Financial. Quick note — you're missing ${prod.toLowerCase()} coverage, which is an easy gap to close. Want me to send a couple affordable options? Reply YES.`;
+  } else if(t.includes('Lapsed')){
+    call=`Hi ${first}, this is Marcus at Summit Financial. I noticed your coverage with us lapsed a while back, and I wanted to personally reach out — your situation may have changed, and I'd hate for you to be without protection. Can I take a few minutes to see if we can get you covered again, often at a better rate?`;
+    esub=`Let's get your coverage back in place, ${first}`;
+    ebody=`Hi ${first},\n\nI noticed your policy with us lapsed and wanted to reach out personally. Life gets busy — but going without coverage is a real risk for your family.\n\nIn many cases we can re-establish protection quickly, and sometimes at a better rate than before. Would you be open to a quick call to look at your options?\n\nBest,\nMarcus Reyes\nSummit Financial Group`;
+    sms=`Hi ${first}, it's Marcus at Summit Financial. Noticed your coverage lapsed — I'd hate to leave your family unprotected. Can we get you covered again? Often a better rate. Reply YES.`;
+  } else if(t.includes('Dormant')){
+    call=`Hi ${first}, this is Marcus at Summit Financial. You reached out to us a while back about coverage and we never got it finalized — I wanted to follow up personally. Rates and options have changed, and I'd be happy to put together a fresh quote for you. Is now a better time?`;
+    esub=`Picking up where we left off, ${first}`;
+    ebody=`Hi ${first},\n\nA while back you looked into coverage with us but we never finished. I wanted to reach back out — options and pricing have changed, and I can pull together a fresh, no-obligation quote for you.\n\nWould this week work for a quick call?\n\nBest,\nMarcus Reyes\nSummit Financial Group`;
+    sms=`Hi ${first}, Marcus at Summit Financial. We never finished your quote a while back — want me to pull fresh numbers for you? Takes 5 min. Reply YES.`;
+  } else {
+    call=`Hi ${first}, this is Marcus at Summit Financial. It's been a while since we last reviewed your policy, and a lot can change — your coverage needs, your beneficiaries, your rates. I'd like to schedule a quick annual review to make sure everything still fits. Do you have 15 minutes this week?`;
+    esub=`Time for your policy review, ${first}`;
+    ebody=`Hi ${first},\n\nIt's been over a year since we last reviewed your coverage. A quick review makes sure your policy still fits your life, your beneficiaries are current, and you're not overpaying.\n\nThere's no cost and no obligation. Are you free for a brief call this week?\n\nBest,\nMarcus Reyes\nSummit Financial Group`;
+    sms=`Hi ${first}, it's Marcus at Summit Financial. You're due for your annual policy review — quick way to make sure everything still fits. 15 min this week? Reply YES.`;
+  }
+  return {call,esub,ebody,sms};
+}
+function openOpp(o){const r=outreach(o);const tc=TYPECOL[o.type]||['rgba(99,102,241,.16)','#a5b4fc'];
+  const body=`<div class="mbody">
+    <div class="mkpi"><div class="c"><div class="n" style="color:var(--gold)">${fmt(o.rev)}</div><div class="l">Est. revenue</div></div><div class="c"><div class="n" style="color:#4ade80">${o.score}</div><div class="l">Priority</div></div><div class="c"><div class="n">${o.last}</div><div class="l">Last contact</div></div></div>
+    <div class="mrow"><span>Opportunity</span><b><span class="otype" style="background:${tc[0]};color:${tc[1]}">${o.type}</span></b></div>
+    <div class="mrow"><span>Recommended</span><b>${o.action}</b></div>
+    <div class="sub" style="margin:16px 0 6px;color:var(--muted2)">AI-generated outreach</div>
+    <div class="tabs"><button class="tab active" data-tab="call">Call Script</button><button class="tab" data-tab="email">Email</button><button class="tab" data-tab="sms">SMS</button><button class="tab" data-tab="seq">Follow-Up</button></div>
+    <div class="tabbody show" data-body="call"><div class="draft">${r.call}</div><button class="copy">${svg('copy')}Copy script</button></div>
+    <div class="tabbody" data-body="email"><div class="draft"><span class="esub">Subject: ${r.esub}</span>${r.ebody}</div><button class="copy">${svg('copy')}Copy email</button></div>
+    <div class="tabbody" data-body="sms"><div class="draft">${r.sms}</div><button class="copy">${svg('copy')}Copy SMS</button></div>
+    <div class="tabbody" data-body="seq"><div class="timeline">
+      <div class="tl"><span class="pt" style="background:#6366f1"></span><div><div class="ti">Day 1 — Call</div><div class="td">Use the call script. If no answer, leave a 15-sec voicemail.</div></div></div>
+      <div class="tl"><span class="pt" style="background:#3b82f6"></span><div><div class="ti">Day 2 — Email</div><div class="td">Send the email draft above.</div></div></div>
+      <div class="tl"><span class="pt" style="background:#22c55e"></span><div><div class="ti">Day 4 — SMS</div><div class="td">Send the text. Most replies come here.</div></div></div>
+      <div class="tl"><span class="pt" style="background:#f59e0b"></span><div><div class="ti">Day 7 — Call + voicemail</div><div class="td">Second attempt, different time of day.</div></div></div>
+      <div class="tl"><span class="pt" style="background:#1d2640"></span><div><div class="ti">Day 12 — Final email</div><div class="td">Soft close + easy way to book a time.</div></div></div>
+    </div></div>
+    <div class="mactions"><button class="ma-primary">Launch sequence</button><button class="ma-ghost">Assign to producer</button></div></div>`;
+  openModal(mhead(o.name,o.type+' · '+fmt(o.rev)+' opportunity')+body);
+}
+function openKPI(label){let b='';
+  const bars=(title,items)=>{const max=Math.max(...items.map(i=>i[1])),cur=max>1000;return `<div class="sub" style="margin:6px 0 8px;color:var(--muted2)">${title}</div>`+items.map(i=>`<div style="display:flex;align-items:center;gap:10px;font-size:11.5px;margin-bottom:9px"><span style="width:150px;color:#cdd5ea">${i[0]}</span><span style="flex:1;height:6px;border-radius:20px;background:#141b2c;overflow:hidden"><span style="display:block;height:100%;width:${Math.round(i[1]/max*100)}%;background:linear-gradient(90deg,#c9a85a,#e6cd8f);border-radius:20px"></span></span><span style="width:64px;text-align:right;color:var(--muted);font-weight:700">${cur?'$'+i[1].toLocaleString():i[1]}</span></div>`).join('');};
+  if(label.includes('Revenue Opportunities'))b=bars('Identified revenue by type',[['Term Conversions',682000],['Annuity',456000],['Cross-Sell',312000],['Policy Reviews',198000],['Lapsed',112000],['Dormant',84000]]);
+  else if(label.includes('Term'))b=bars('Conversions by deadline',[['Closing < 30 days',14],['30–90 days',38],['90–180 days',52],['180+ days',38]]);
+  else if(label.includes('Annuity'))b=bars('Annuity by trigger',[['Near retirement age',16],['Rollover eligible',12],['Maturity coming',7],['Suitability review',3]]);
+  else if(label.includes('Policy Reviews'))b=bars('Reviews by overdue window',[['12–18 months',41],['18–24 months',28],['24+ months',18]]);
+  else if(label.includes('Premium'))b=bars('Recovered by opportunity type',[['Annuity',112000],['Term Conversion',78000],['Cross-Sell',62000],['Win-back',38000],['Reviews',22000]]);
+  else b=bars('Retention by segment',[['2+ policies',98],['Recently reviewed',96],['Monoline',88],['No contact 12mo+',79]]);
+  const k=KPI.find(x=>x.l===label)||{n:'',d:''};
+  openModal(mhead(label,'Across your book of business · '+k.d)+`<div class="mbody"><div class="mkpi"><div class="c"><div class="n">${k.n}</div><div class="l">Current</div></div><div class="c"><div class="n" style="color:#4ade80">${k.d}</div><div class="l">Trend</div></div><div class="c"><div class="n">4,212</div><div class="l">clients scanned</div></div></div>${b}</div>`);}
+function openNav(name){openModal(mhead(name,'Section preview')+`<div class="mbody"><div class="sub" style="color:var(--muted);line-height:1.6">This is the <b style="color:#cdd5ea">${name}</b> workspace. In the live platform it opens the full ${name.toLowerCase()} view with search, filters, AI scoring, and a detail page for every record — same drill-down you see across the dashboard.</div></div>`);}
 
-function openLead(tr){
- const name=tr.cells[0].textContent.trim(),svc=tr.cells[1].textContent.trim(),last=tr.cells[2].textContent.trim(),val=tr.cells[3].textContent.trim(),score=tr.cells[4].textContent.trim();
- const d=LEADDATA[name]||{phone:'(614) 555-0100',src:'Web form',parts:[['Response speed',85,'#22c55e'],['Job value',80,'#3b82f6'],['Intent signals',85,'#ec4899'],['Engagement',78,'#8b5cf6']],thread:[['in','Interested in a quote for '+svc.toLowerCase()+'.'],['out','Happy to help! When works for a quick visit?']]};
- const body=`<div class="mbody">
-  <div class="mkpi"><div class="c"><div class="n" style="color:#4ade80">${score}</div><div class="l">Lead score</div></div><div class="c"><div class="n">${val}</div><div class="l">Est. value</div></div><div class="c"><div class="n">${last}</div><div class="l">Last contact</div></div></div>
-  <div class="mrow"><span>Service</span><b>${svc}</b></div><div class="mrow"><span>Phone</span><b>${d.phone}</b></div><div class="mrow"><span>Source</span><b>${d.src}</b></div>
-  <div class="sub" style="margin:14px 0 6px;color:var(--muted2)">Why this lead is hot</div>
-  <div class="scoreb">${d.parts.map(p=>`<div class="r"><span class="lab">${p[0]}</span><span class="track"><span class="fill" style="width:${p[1]}%;background:${p[2]}"></span></span><span class="v">${p[1]}</span></div>`).join('')}</div>
-  <div class="sub" style="margin:14px 0 6px;color:var(--muted2)">Conversation</div>
-  <div class="thread">${d.thread.map(b=>`<div class="bub ${b[0]}">${b[1]}</div>`).join('')}</div>
-  <div class="mactions"><button class="ma-primary">Send reply</button><button class="ma-ghost">Call</button><button class="ma-ghost">Book estimate</button></div></div>`;
- openModal(mhead(name,svc+' · score '+score)+body,true);
-}
-function openCall(tr){
- const caller=tr.cells[0].textContent.trim(),loc=tr.cells[1].textContent.trim(),time=tr.cells[2].textContent.trim(),svc=tr.cells[3].textContent.trim(),est=tr.cells[4].textContent.trim();
- const body=`<div class="mbody">
-  <div class="mkpi"><div class="c"><div class="n">${est}</div><div class="l">Est. value</div></div><div class="c"><div class="n" style="color:#4ade80">0:12</div><div class="l">Text-back time</div></div><div class="c"><div class="n">${time}</div><div class="l">Missed</div></div></div>
-  <div class="mrow"><span>Caller</span><b>${caller}</b></div><div class="mrow"><span>Location</span><b>${loc}</b></div><div class="mrow"><span>Likely service</span><b>${svc}</b></div>
-  <div class="sub" style="margin:14px 0 6px;color:var(--muted2)">What happened</div>
-  <div class="timeline">
-   <div class="tl"><span class="pt" style="background:#ef4444"></span><div><div class="ti">Missed call</div><div class="td">${time} ago · no answer</div></div></div>
-   <div class="tl"><span class="pt" style="background:#22c55e"></span><div><div class="ti">Auto text-back sent</div><div class="td">12 seconds later — “Sorry we missed you! This is Buckeye Roofing…”</div></div></div>
-   <div class="tl"><span class="pt" style="background:#3b82f6"></span><div><div class="ti">Awaiting reply</div><div class="td">Follow-up auto-queued in 1 hour if no response</div></div></div></div>
-  <div class="mactions"><button class="ma-primary">Call back</button><button class="ma-ghost">Send text</button></div></div>`;
- openModal(mhead(caller,'Missed call · '+loc)+body);
-}
-function openEstimate(tr){
- const cust=tr.cells[0].textContent.trim(),proj=tr.cells[1].textContent.trim(),status=tr.cells[2].textContent.trim(),val=tr.cells[3].textContent.trim(),days=tr.cells[4].textContent.trim();
- const body=`<div class="mbody">
-  <div class="mkpi"><div class="c"><div class="n">${val}</div><div class="l">Estimate value</div></div><div class="c"><div class="n">${status}</div><div class="l">Status</div></div><div class="c"><div class="n" style="color:#fbbf24">${days}d</div><div class="l">Idle</div></div></div>
-  <div class="mrow"><span>Customer</span><b>${cust}</b></div><div class="mrow"><span>Project</span><b>${proj}</b></div>
-  <div class="sub" style="margin:14px 0 6px;color:var(--muted2)">Follow-up sequence</div>
-  <div class="timeline">
-   <div class="tl"><span class="pt" style="background:#22c55e"></span><div><div class="ti">Day 1 — Estimate sent</div><div class="td">Delivered &amp; opened</div></div></div>
-   <div class="tl"><span class="pt" style="background:#22c55e"></span><div><div class="ti">Day 3 — Check-in text</div><div class="td">“Any questions on your ${proj.toLowerCase()} quote?”</div></div></div>
-   <div class="tl"><span class="pt" style="background:#f59e0b"></span><div><div class="ti">Day 7 — Follow-up due now</div><div class="td">Value reminder + offer to call</div></div></div>
-   <div class="tl"><span class="pt" style="background:#1e273f"></span><div><div class="ti">Day 14 / Day 30</div><div class="td">Auto-scheduled if still no reply</div></div></div></div>
-  <div class="mactions"><button class="ma-primary">Send follow-up</button><button class="ma-ghost">Mark won</button><button class="ma-ghost">Mark lost</button></div></div>`;
- openModal(mhead(cust,proj+' · '+val)+body);
-}
-function openRep(tr){
- const rep=tr.cells[0].textContent.trim();
- const body=`<div class="mbody">
-  <div class="mkpi"><div class="c"><div class="n">${tr.cells[1].textContent}</div><div class="l">Conversations</div></div><div class="c"><div class="n">${tr.cells[4].textContent}</div><div class="l">Jobs won</div></div><div class="c"><div class="n">${tr.cells[5].textContent}</div><div class="l">Revenue</div></div></div>
-  <div class="mrow"><span>Replies handled</span><b>${tr.cells[2].textContent}</b></div><div class="mrow"><span>Estimates sent</span><b>${tr.cells[3].textContent}</b></div>
-  <div class="sub" style="margin:14px 0 6px;color:var(--muted2)">Performance</div>
-  <div class="scoreb"><div class="r"><span class="lab">Avg response time</span><span class="track"><span class="fill" style="width:82%;background:#22c55e"></span></span><span class="v">4m</span></div><div class="r"><span class="lab">Reply rate</span><span class="track"><span class="fill" style="width:64%;background:#3b82f6"></span></span><span class="v">64%</span></div><div class="r"><span class="lab">Close rate</span><span class="track"><span class="fill" style="width:33%;background:#8b5cf6"></span></span><span class="v">33%</span></div></div></div>`;
- openModal(mhead(rep,'Rep performance · this month')+body);
-}
-function openKPI(label){
- const k=KPI[tier].find(x=>x.l===label)||{n:'',d:''};let b='';
- if(label.includes('Missed Calls'))b=bars('Recovered by source',[['Inbound phone',64],['Web form',38],['Google LSA',24],['Facebook',16]]);
- else if(label.includes('Hot Replies'))b=bars('Replies by intent',[['Ready to book',31],['Pricing question',28],['Scheduling',19],['General',9]]);
- else if(label.includes('Estimates'))b=bars('By follow-up stage',[['New',8],['Contacted',10],['Follow-Up',9],['Waiting reply',5],['Won',2]]);
- else if(label.includes('Old Leads'))b=bars('Reactivated by campaign',[['Storm win-back',18],['Old estimate',14],['Seasonal inspection',8],['Referral nudge',4]]);
- else if(label.includes('Jobs Won'))b=bars('Won jobs (value)',[['Roof replacement',18500],['Storm damage',12300],['Siding',8000]]);
- else b=bars('Revenue by source',[['Google Local Services',11240],['Google Ads',7650],['Facebook Ads',5120],['Referral',3280],['Website Organic',1600]]);
- openModal(mhead(label,'This billing period · '+k.d+' vs last month')+`<div class="mbody"><div class="mkpi"><div class="c"><div class="n">${k.n}</div><div class="l">${label.includes('Revenue')?'Recovered':'Current'}</div></div><div class="c"><div class="n" style="color:#4ade80">${k.d}</div><div class="l">vs last month</div></div><div class="c"><div class="n">98%</div><div class="l">auto-handled</div></div></div>${b}</div>`);
-}
-function openNav(name){openModal(mhead(name,'Section preview')+`<div class="mbody"><div class="sub" style="color:var(--muted);line-height:1.6">This is the <b style="color:#cdd5ea">${name}</b> workspace. In the live app it opens the full ${name.toLowerCase()} table with search, filters, status badges, and a detail page for every record — same drill-down style you see on the dashboard cards.</div></div>`);}
+/* ---- toast + feed + upload sim ---- */
+function toast(msg,col){const t=document.getElementById('toast');t.innerHTML=svg('check',col?`style="color:${col}"`:'')+msg;t.classList.add('show');clearTimeout(window._tt);window._tt=setTimeout(()=>t.classList.remove('show'),2600);}
+window._bell=5;
+const FEED=[
+ ['#d6b56a','Opportunity surfaced — Annuity Rollover · $18,500'],
+ ['#8b5cf6','Term conversion deadline in 12 days — John S.'],
+ ['#22c55e','Policy review booked — Linda D.'],
+ ['#06b6d4','Cross-sell accepted — Disability · $2,500 AP'],
+ ['#3b82f6','New opportunity — Policy Review · $3,400'],
+ ['#ef4444','Lapsed client re-engaged — Robert L.'],
+ ['#d6b56a','Annuity review scheduled — Sarah J. · $12,000'],
+ ['#22c55e','Premium recovered — $5,600 placed'],
+];
+const SEED=[['#d6b56a','Opportunity surfaced — Annuity · $12,000','2m ago'],['#22c55e','Policy review booked — Maria G.','4m ago'],['#8b5cf6','Term conversion flagged — closing <30d','6m ago'],['#3b82f6','Dormant lead re-engaged — Kevin W.','9m ago']];
+function feedRow(c,m,t){return `<div class="fitem"><span class="fdot" style="background:${c}"></span><div class="fx"><div class="fmsg">${m}</div><div class="ft">${t}</div></div></div>`;}
+function seedFeed(){document.getElementById('feed').innerHTML=SEED.map(s=>feedRow(s[0],s[1],s[2])).join('');}
+let feedN=0;
+function pushFeed(){const f=document.getElementById('feed');const it=FEED[Math.floor(Math.random()*FEED.length)];
+  [...f.children].forEach((c,i)=>{const t=c.querySelector('.ft');if(t&&t.textContent==='now')t.textContent='just now';else if(t&&i>0)t.textContent=i+'m ago';});
+  f.insertAdjacentHTML('afterbegin',feedRow(it[0],it[1],'now'));while(f.children.length>7)f.removeChild(f.lastChild);
+  window._bell++;const bd=document.getElementById('bellDot');if(bd)bd.textContent=window._bell;
+  feedN++;if(feedN%3===0)toast(it[1],it[0]);}
 
-function routeRow(tr){const title=tr.closest('.panel').querySelector('h3').textContent;
- if(title.includes('Hot Leads'))openLead(tr);
- else if(title.includes('Missed Calls'))openCall(tr);
- else if(title.includes('Estimate Rescue'))openEstimate(tr);
- else if(title.includes('Rep Scoreboard'))openRep(tr);}
+function animateVal(id,target,prefix,suffix,dec){const el=document.getElementById(id);if(!el)return;let cur=0;const step=target/40;
+  const t=setInterval(()=>{cur+=step;if(cur>=target){cur=target;clearInterval(t);}el.textContent=prefix+(dec?cur.toFixed(dec):Math.round(cur).toLocaleString())+suffix;},22);}
+function runAnalysis(){toast('Analyzing 4,212 clients across your book…','#d6b56a');
+  document.getElementById('bizClients').textContent='0';document.getElementById('bizOpps').textContent='0';document.getElementById('bizRev').textContent='$0';
+  setTimeout(()=>{animateVal('bizClients',4212,'','',0);},250);
+  setTimeout(()=>{animateVal('bizOpps',1318,'','',0);},700);
+  setTimeout(()=>{document.getElementById('bizRev').textContent='$1.84M';toast('1,318 revenue opportunities found · $1.84M identified','#d6b56a');},1500);}
 
-document.getElementById('seg').addEventListener('click',e=>{const b=e.target.closest('button');if(b){tier=b.dataset.t;applyTier();document.querySelectorAll('.panel table tbody tr').forEach(r=>r.classList.add('clk'));}});
+document.getElementById('oppSearch').addEventListener('input',e=>{const q=e.target.value.toLowerCase();document.querySelectorAll('#oppTable tbody tr').forEach(r=>{r.style.display=r.textContent.toLowerCase().includes(q)?'':'none';});});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
 document.addEventListener('click',e=>{
   if(e.target.closest('.mclose')||e.target.id==='overlay'){closeModal();return;}
-  const ab=e.target.closest('.respond,.callbtn,.followbtn,.runbtn,.viewall,.ma-primary,.ma-ghost');
-  if(ab){const tr=ab.closest('tr');const nm=tr?tr.cells[0].textContent.trim():'';
-    const t=ab.textContent.trim();
-    if(ab.classList.contains('runbtn'))toast('Running smart follow-up on 14 leads…');
-    else if(ab.classList.contains('viewall'))toast('Opening full view…');
-    else if(t==='Call'||t==='Call back'||t==='Call Back')toast('Calling '+(nm||'lead')+'…');
-    else toast(t+(nm?' · '+nm:''));
-    e.stopPropagation();return;}
+  const tab=e.target.closest('.tab');
+  if(tab){const m=tab.closest('.modal');m.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));tab.classList.add('active');
+    m.querySelectorAll('.tabbody').forEach(x=>x.classList.toggle('show',x.dataset.body===tab.dataset.tab));return;}
+  if(e.target.closest('.copy')){toast('Copied to clipboard','#4ade80');e.stopPropagation();return;}
+  if(e.target.closest('#uploadBtn')||e.target.closest('#uploadBtn2')||e.target.closest('#rerunBtn')){runAnalysis();return;}
+  if(e.target.closest('#runBtn')){toast('Generating outreach for your top 20 opportunities…','#d6b56a');return;}
+  const ab=e.target.closest('.actbtn');if(ab){openOpp(OPPS[[...document.querySelectorAll('#oppTable tbody tr')].indexOf(ab.closest('tr'))]);e.stopPropagation();return;}
+  const ma=e.target.closest('.ma-primary,.ma-ghost');if(ma){toast(ma.textContent.trim());e.stopPropagation();return;}
   const kpi=e.target.closest('.kpi');if(kpi){openKPI(kpi.dataset.k);return;}
-  const tr=e.target.closest('.panel table tbody tr');if(tr){routeRow(tr);return;}
-  const na=e.target.closest('.nav a');if(na){document.querySelectorAll('.nav a').forEach(x=>x.classList.remove('active'));na.classList.add('active');const nm=na.textContent.trim();if(!nm.includes('Dashboard'))openNav(nm);}
+  const tr=e.target.closest('#oppTable tbody tr');if(tr){openOpp(OPPS[[...document.querySelectorAll('#oppTable tbody tr')].indexOf(tr)]);return;}
+  const na=e.target.closest('.nav a');if(na){document.querySelectorAll('.nav a').forEach(x=>x.classList.remove('active'));na.classList.add('active');const nm=na.textContent.trim().replace(/\d[\d,]*$/,'').trim();if(!nm.includes('Dashboard'))openNav(nm);}
 });
+
+renderNav();renderKPIs();renderOpps();renderSnap();titles();makeCharts();seedFeed();
+setTimeout(runAnalysis,500);
+setInterval(pushFeed,3800);
 </script>
 </body>
 </html>
