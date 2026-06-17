@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Prestige Inquiry — AI Revenue Recovery for Insurance Agencies</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <style>
   :root{
     --bg:#070a13;--panel:#0e1322;--card:#121829;--line:#1d2640;
@@ -182,7 +183,7 @@
             <div><div class="n" id="bizOpps">1,318</div><div class="l">Opportunities found</div></div>
             <div><div class="n gold" id="bizRev">$1.84M</div><div class="l">Revenue identified</div></div>
           </div>
-          <div class="barlist">
+          <div class="barlist" id="bizBars">
             <div class="row"><span class="lab">Term Conversions</span><span class="track"><span class="fill" style="width:100%;background:linear-gradient(90deg,#6366f1,#8b5cf6)"></span></span><span class="v">$682k</span></div>
             <div class="row"><span class="lab">Annuity Opportunities</span><span class="track"><span class="fill" style="width:67%;background:linear-gradient(90deg,#c9a85a,#e6cd8f)"></span></span><span class="v">$456k</span></div>
             <div class="row"><span class="lab">Cross-Sell (DI / LTC / FE)</span><span class="track"><span class="fill" style="width:46%;background:linear-gradient(90deg,#06b6d4,#3b82f6)"></span></span><span class="v">$312k</span></div>
@@ -192,7 +193,7 @@
           </div>
           <div class="bizactions"><button class="b-gold" id="uploadBtn2"></button><button class="b-ghost" id="rerunBtn">Re-run analysis</button></div>
         </div>
-        <div class="donutwrap" style="height:230px"><canvas id="mixChart"></canvas><div class="donutc"><div class="n gold" style="color:var(--gold)">$1.84M</div><div class="l">Identified</div></div></div>
+        <div class="donutwrap" style="height:230px"><canvas id="mixChart"></canvas><div class="donutc"><div class="n gold" id="mixCenter" style="color:var(--gold)">$1.84M</div><div class="l">Identified</div></div></div>
       </div>
     </div>
 
@@ -247,6 +248,7 @@
     </div>
   </main>
 </div>
+<input id="csvInput" type="file" accept=".csv,text/csv" hidden />
 <div class="overlay" id="overlay"><div class="modal"></div></div>
 <div class="toast" id="toast"></div>
 
@@ -306,8 +308,9 @@ const KPI=[
   {l:'Client Retention Rate',n:'94%',d:'↑ 6 pts vs last qtr',i:'retention',c:'#5eead4',bg:'rgba(6,182,212,.16)',s:[88,89,90,91,92,92,93,93,94],sc:'#06b6d4'},
 ];
 
+let TYPECOL2;
 const TYPECOL={'Term Conversion':['rgba(139,92,246,.16)','#a78bfa'],'Annuity Review':['rgba(245,158,11,.16)','#fbbf24'],'Annuity Rollover':['rgba(245,158,11,.16)','#fbbf24'],'Disability Cross-Sell':['rgba(6,182,212,.16)','#22d3ee'],'LTC Cross-Sell':['rgba(6,182,212,.16)','#22d3ee'],'Final Expense Cross-Sell':['rgba(6,182,212,.16)','#22d3ee'],'Policy Review':['rgba(59,130,246,.16)','#60a5fa'],'Lapsed Client':['rgba(239,68,68,.16)','#fca5a5'],'Dormant Lead':['rgba(100,116,139,.18)','#94a3b8'],'Beneficiary Review':['rgba(34,197,94,.16)','#4ade80']};
-const OPPS=[
+let OPPS=[
  {name:'James Park',type:'Annuity Rollover',rev:18500,score:96,last:'2 yr ago',action:'Retirement rollover — call now'},
  {name:'Sarah Jones',type:'Annuity Review',rev:12000,score:95,last:'14 mo ago',action:'Schedule rollover review'},
  {name:'Maria Gomez',type:'LTC Cross-Sell',rev:5600,score:88,last:'11 mo ago',action:'LTC needs review'},
@@ -491,7 +494,8 @@ document.addEventListener('click',e=>{
   if(tab){const m=tab.closest('.modal');m.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));tab.classList.add('active');
     m.querySelectorAll('.tabbody').forEach(x=>x.classList.toggle('show',x.dataset.body===tab.dataset.tab));return;}
   if(e.target.closest('.copy')){toast('Copied to clipboard','#4ade80');e.stopPropagation();return;}
-  if(e.target.closest('#uploadBtn')||e.target.closest('#uploadBtn2')||e.target.closest('#rerunBtn')){runAnalysis();return;}
+  if(e.target.closest('#uploadBtn')||e.target.closest('#uploadBtn2')){document.getElementById('csvInput').click();return;}
+  if(e.target.closest('#rerunBtn')){runAnalysis();return;}
   if(e.target.closest('#runBtn')){toast('Generating outreach for your top 20 opportunities…','#d6b56a');return;}
   const ab=e.target.closest('.actbtn');if(ab){openOpp(OPPS[[...document.querySelectorAll('#oppTable tbody tr')].indexOf(ab.closest('tr'))]);e.stopPropagation();return;}
   const ma=e.target.closest('.ma-primary,.ma-ghost');if(ma){toast(ma.textContent.trim());e.stopPropagation();return;}
@@ -499,6 +503,62 @@ document.addEventListener('click',e=>{
   const tr=e.target.closest('#oppTable tbody tr');if(tr){openOpp(OPPS[[...document.querySelectorAll('#oppTable tbody tr')].indexOf(tr)]);return;}
   const na=e.target.closest('.nav a');if(na){document.querySelectorAll('.nav a').forEach(x=>x.classList.remove('active'));na.classList.add('active');const nm=na.textContent.trim().replace(/\d[\d,]*$/,'').trim();if(!nm.includes('Dashboard'))openNav(nm);}
 });
+
+/* ===== Book-of-Business CSV analysis engine ===== */
+function num(v){if(v==null)return 0;const n=parseFloat(String(v).replace(/[^0-9.\-]/g,''));return isNaN(n)?0:n;}
+function lc(v){return String(v==null?'':v).toLowerCase().trim();}
+function pick(row,wants){for(const k of Object.keys(row)){const kk=k.toLowerCase().replace(/[^a-z]/g,'');for(const w of wants){if(kk.includes(w))return row[k];}}return '';}
+function monthsSince(s){if(!s)return null;const d=new Date(s);if(isNaN(d))return null;return (Date.now()-d.getTime())/(1000*60*60*24*30.44);}
+function scoreOpp(type,rev,lcM){let s=58;s+=Math.min(26,rev/750);if(type.includes('Annuity'))s+=9;if(type.includes('Term'))s+=11;if(type.includes('Lapsed'))s+=5;if(lcM!=null)s+=Math.min(9,lcM/3);return Math.max(60,Math.min(99,Math.round(s)));}
+function analyze(rows){
+  const opps=[];const byType={Term:0,Annuity:0,CrossSell:0,Reviews:0,Lapsed:0,Dormant:0};
+  const bucket={'Term Conversion':'Term','Annuity Opportunity':'Annuity','Cross-Sell (DI/LTC)':'CrossSell','Policy Review':'Reviews','Beneficiary Review':'Reviews','Lapsed Client':'Lapsed','Dormant Lead':'Dormant'};
+  rows.forEach(r=>{
+    if(!r||Object.keys(r).length===0)return;
+    const name=String(pick(r,['fullname','clientname','name','client','first'])||'').trim()||'Unknown Client';
+    const product=lc(pick(r,['producttype','policytype','product','plan','coverage','line']));
+    const status=lc(pick(r,['policystatus','status','stage']));
+    let age=num(pick(r,['age']));const dob=pick(r,['dateofbirth','birthdate','dob']);if(!age&&dob){const m=monthsSince(dob);if(m)age=Math.floor(m/12);}
+    let prem=num(pick(r,['annualizedpremium','annualpremium','premium','ap']));
+    if(lc(pick(r,['frequency','mode','paymode'])).includes('month'))prem*=12;
+    const lastC=pick(r,['lastcontact','lastactivity','lastreview','lastcontacted','lasttouch']);const lcM=monthsSince(lastC);
+    const issM=monthsSince(pick(r,['issuedate','effectivedate','policydate','startdate','inforcedate']));
+    const term=num(pick(r,['termlength','termyears','term']));
+    const benef=lc(pick(r,['beneficiary','beneficiaries','benef']));
+    const isLife=/term|whole|iul|universal|final|life|wl|ul/.test(product);
+    const isLapsed=/laps|cancel|inactiv|termin|surrender/.test(status);
+    const isLead=/lead|prospect|quote|unsold|new/.test(status)&&!/active|inforce|placed|issued/.test(status);
+    const lastLabel=lastC?(lcM!=null?Math.round(lcM)+' mo ago':String(lastC)):(isLead?'never':'—');
+    const add=(type,rev,reason)=>{const v=Math.round(rev||0);opps.push({name,type,rev:v,score:scoreOpp(type,v,lcM),last:lastLabel,action:reason});byType[bucket[type]||'Reviews']+=v;};
+    if(isLapsed){add('Lapsed Client',prem||2000,'Win-back — re-establish coverage');return;}
+    if(isLead&&!product){add('Dormant Lead',1800,'Re-engage with a fresh quote');return;}
+    if(/term/.test(product)){const yrs=issM!=null?issM/12:0;if(term?(yrs>=term-2):(yrs>=7))add('Term Conversion',(prem||2000)*2.2,'Conversion window — lock permanent coverage');}
+    if(age>=58&&!/annuit/.test(product))add('Annuity Opportunity',12000,'Near retirement — review rollover / annuity');
+    if(isLife&&!/disab|ltc|long.?term|health|supplement|accident|hospital/.test(product))add('Cross-Sell (DI/LTC)',2500,'Coverage gap — add DI / LTC');
+    if(lcM!=null&&lcM>=12)add('Policy Review',1500,'Annual review overdue (12mo+)');
+    if(!benef)add('Beneficiary Review',1200,'Confirm / update beneficiaries');
+  });
+  opps.sort((a,b)=>b.score-a.score);
+  return {opps,totals:{clients:rows.length,oppCount:opps.length,revenue:opps.reduce((s,o)=>s+o.rev,0),byType}};
+}
+function animateInt(id,target){const el=document.getElementById(id);if(!el)return;let c=0;const step=Math.max(1,target/40);clearInterval(el._t);el._t=setInterval(()=>{c+=step;if(c>=target){c=target;clearInterval(el._t);}el.textContent=Math.round(c).toLocaleString();},22);}
+function moneyShort(v){return v>=1e6?'$'+(v/1e6).toFixed(2)+'M':'$'+Math.round(v/1000)+'k';}
+function applyResult(res){
+  const t=res.totals;
+  OPPS=res.opps.slice(0,14);renderOpps();
+  document.getElementById('bizClients').textContent='0';document.getElementById('bizOpps').textContent='0';document.getElementById('bizRev').textContent='$0';
+  setTimeout(()=>animateInt('bizClients',t.clients),200);
+  setTimeout(()=>animateInt('bizOpps',t.oppCount),650);
+  const revM=moneyShort(t.revenue);
+  setTimeout(()=>{document.getElementById('bizRev').textContent=revM;const mc=document.getElementById('mixCenter');if(mc)mc.textContent=revM;toast(t.oppCount.toLocaleString()+' opportunities found · '+revM+' identified in your book','#d6b56a');},1450);
+  const order=[['Term Conversions','Term','#8b5cf6','#6366f1'],['Annuity Opportunities','Annuity','#e6cd8f','#c9a85a'],['Cross-Sell (DI / LTC / FE)','CrossSell','#3b82f6','#06b6d4'],['Policy Reviews (12mo+)','Reviews','#22c55e','#10b981'],['Lapsed Clients','Lapsed','#ef4444','#f59e0b'],['Dormant Leads','Dormant','#94a3b8','#64748b']];
+  const max=Math.max(1,...order.map(o=>t.byType[o[1]]||0));
+  document.getElementById('bizBars').innerHTML=order.map(o=>{const v=t.byType[o[1]]||0;return `<div class="row"><span class="lab">${o[0]}</span><span class="track"><span class="fill" style="width:${Math.round(v/max*100)}%;background:linear-gradient(90deg,${o[3]},${o[2]})"></span></span><span class="v">$${Math.round(v/1000)}k</span></div>`;}).join('');
+  if(mixChart){mixChart.data.datasets[0].data=order.map(o=>t.byType[o[1]]||0);mixChart.update();}
+}
+document.getElementById('csvInput').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;toast('Analyzing '+f.name+' …','#d6b56a');
+  Papa.parse(f,{header:true,skipEmptyLines:true,complete:res=>{try{const r=analyze(res.data);if(!r.opps.length){toast('Parsed '+res.data.length+' rows — no opportunities flagged. Check your columns.');return;}applyResult(r);}catch(err){console.error(err);toast('Could not read that file — see console.');}},error:()=>toast('Could not parse that CSV.')});
+  e.target.value='';});
 
 renderNav();renderKPIs();renderOpps();renderSnap();titles();makeCharts();seedFeed();
 setTimeout(runAnalysis,500);
